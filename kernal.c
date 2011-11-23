@@ -36,9 +36,9 @@ int k_release_message_env(MsgEnv* env)
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 {
-	if (DEBUG==1) {
+
 		ps("In send message");
-	}
+
 
 	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
@@ -116,6 +116,7 @@ int k_get_console_chars(MsgEnv *message_envelope)
 
 void atomic(bool_t state)
 {
+	return;
 	static sigset_t oldmask;
 	sigset_t newmask;
 	if (state == TRUE)
@@ -185,25 +186,25 @@ void k_process_switch(ProcessState next_state)
 	{
 		ps("Inside Process Switch. Current process is:");
 		pp(CURRENT_PROCESS);
-		ps("Next process is");
-		pp(next_process);
+
 		CURRENT_PROCESS->state = next_state;
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
 		CURRENT_PROCESS->state = EXECUTING;
-		k_context_switch(&(old_process->buf), &(next_process->buf));
+		ps("Next process is");
+		//pp(next_process);
+		k_context_switch((old_process->buf), (next_process->buf));
 	}
 	ps("Back in process switch after context");
 }
 
-void k_context_switch(jmp_buf* prev, jmp_buf* next)
+void k_context_switch(jmp_buf prev, jmp_buf next)
 {
-	int val = setjmp(*prev);
+	int val = setjmp(prev);
 	ps("in context switch, right before val == 0");
 	if (val == 0)
 	{
-		longjmp(*next, 1);
-		ps("in context_switch, resuming process");
+		longjmp(next, 1);
 	}
 	ps("Back in context switch after longjump");
 }
@@ -212,6 +213,7 @@ int k_release_processor()
 {
 	proc_pq_enqueue(RDY_PROC_QUEUE,CURRENT_PROCESS);
 	k_process_switch(READY);
+	ps("in k release processor before returning");
 	return SUCCESS;
 }
 
@@ -295,36 +297,53 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     int i;
 
     // Assign the memory locations which will be written to in the message envelope
-    int* buff_size = (int*)msg_env->data;
+   /* int* buff_size = (int*)msg_env->data;
     *buff_size = send_size;
     buff_size++;
     *buff_size = receive_size;
-    buff_size++;
+    buff_size++;*/
 
-    TraceLog* log_stack =  (TraceLog*)(buff_size);
+    char send_header[80];
+    sprintf(send_header, "Send Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
+    strcat(msg_env->data, send_header);
+    TraceLog* log_stack =  (TraceLog*)msg_env->data;
     i = SEND_TRACE_BUF.head;
+    int count = 1;
    do
     {
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
-    	log_stack->dest_pid = log->dest_pid;
+    	char trace[100];
+
+    	sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	strcat(msg_env->data, trace);
+    	break;
+    	/*log_stack->dest_pid = log->dest_pid;
     	log_stack->msg_type = log->msg_type;
     	log_stack->sender_pid = log->sender_pid;
     	log_stack->time_stamp = log->time_stamp;
-    	log_stack++;
+    	log_stack++;*/
     	i = (i+1)%TRACE_LOG_SIZE;
     }while(i!=send_tail);
 
+   char receive_header[80];
+   sprintf(receive_header, "Receive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
+   strcat(msg_env->data, receive_header);
     i =  RECEIVE_TRACE_BUF.head;
     do
     {
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
-    	log_stack->dest_pid = log->dest_pid;
+    	char trace[100];
+
+    	//sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	//strcat(msg_env->data, trace);
+    	/*log_stack->dest_pid = log->dest_pid;
     	log_stack->msg_type = log->msg_type;
     	log_stack->sender_pid = log->sender_pid;
-    	log_stack->time_stamp = log->time_stamp;
+    	log_stack->time_stamp = log->time_stamp;*/
     	log_stack++;
     	i = (i+1)%TRACE_LOG_SIZE;
     }while(i!= receive_tail);
+
     return SUCCESS;
 }
 

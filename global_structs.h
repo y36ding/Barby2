@@ -6,6 +6,8 @@
 
 typedef void (*pc)();
 
+char* msg_type(int i);
+
 typedef enum msg_type {
     CONSOLE_INPUT, DISPLAY_ACK, COUNT_REPORT, WAKEUP10
 }MsgType;

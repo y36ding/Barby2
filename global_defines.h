@@ -14,14 +14,14 @@ typedef int bool_t;
 #define PROCA_ID			   4
 #define PROCB_ID			   5
 #define PROCC_ID			   6
-#define NULL_PROCESS_ID 7
-#define TEST_PROCESS_ID 8
+#define NULL_PROCESS_ID 8
+#define TEST_PROCESS_ID 7
 
 // RTX Constants
-#define MSG_ENV_SIZE 200
+#define MSG_ENV_SIZE 600
 #define MSG_ENV_COUNT 30
 #define NUM_PRIORITY_LEVEL 4
-#define STACK_SIZE             4*4096
+#define STACK_SIZE             4096
 #define STK_OFFSET            16
 #define PROCESS_COUNT 8
 #define NUM_PRIORITIES 4
@@ -36,6 +36,6 @@ typedef int bool_t;
 #define ON TRUE
 #define OFF FALSE
 
-#define DEBUG 1
+#define DEBUG 0
 
 #endif

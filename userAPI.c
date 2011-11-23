@@ -97,3 +97,20 @@ int request_delay(int delay, int wakeup_code, MsgEnv *msg_env)
 	atomic(OFF);
 	return ret;
 }
+
+char* msg_type(int i)
+{
+	switch(i)
+	{
+	case CONSOLE_INPUT:
+		return "CONSOLE INPUT\n";
+	case DISPLAY_ACK:
+		return "DISPLAY_ACK\n";
+	case COUNT_REPORT:
+		return "COUNT_REPORT\n";
+	case WAKEUP10:
+		return "WAKEUP10\n";
+	default:
+		return "No Type";
+	}
+}

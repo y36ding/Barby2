@@ -18,32 +18,38 @@ void test_process() {
 	ps("In Test Process");
 	release_processor();
 	ps("Back in Test Process");
-	//usleep(500000);
+	usleep(50000);
 	}
 }
 
 void processP() {
 	ps("ProcessP Started 1");
 	// Test Trace Buffer
-	/*int i;
-	for (i=0;i<20;++i)
+	int i;
+	/*printf("Free queue size: %i\n", MsgEnvQ_size(FREE_ENV_QUEUE));
+	for (i=0;i<70;++i)
 	{
 		MsgEnv* env = request_msg_env();
+		sprintf(env->data, "Hello!");
+
 		send_message(P_PROCESS_ID, env);
 		MsgEnv* env2 = receive_message();
+		printf("%s\n",env2->data);
 		release_message_env(env2);
 	}
-	MsgEnv* env1 = request_msg_env();
+	printf("Free queue size: %i\n", MsgEnvQ_size(FREE_ENV_QUEUE));*/
+
+	/*MsgEnv* temp = request_msg_env();
+	send_console_chars(temp);*/
+
+	/*MsgEnv* env1 = request_msg_env();
 	k_get_trace_buffer(env1);*/
 
-	release_processor();
-	ps("Back in process P 2");
-	release_processor();
-	ps("Back in process P again 3");
-	release_processor();
-	ps("Back in process P once more 4");
-	const int tWait = 500000;
+	//sprintf(env1->data, ">>>>>>>>>>.Hello\n");
+	//send_console_chars(env1);
 
+	const int tWait = 500000;
+	printf("Requesting env in Proc P\n");
 	ps("Requesting env in Proc P");
 	MsgEnv* env = request_msg_env();
 	ps("Envelopes Allocated");
@@ -59,7 +65,7 @@ void processP() {
 	 env = receive_message();
 	 while (env == NULL) {
 	 usleep(tWait);
-	 env = (MsgEnv*) k_receive_message();
+	 env = (MsgEnv*) receive_message();
 	 if (env != NULL && env->msg_type == CONSOLE_INPUT) {
 	 #if DEBUG
 	 printf("Keyboard Input Acknowledged");

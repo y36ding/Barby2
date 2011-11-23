@@ -27,7 +27,7 @@ int init_all_lists() {
 		PCB_LIST[i]->rcv_msg_queue = (MsgEnvQ*) MsgEnvQ_create();
 		PCB_LIST[i]->is_i_process = INIT_TABLE[i].is_i_process;
 		PCB_LIST[i]->location = INIT_TABLE[i].pc_location;
-		PCB_LIST[i]->stack = (char*)malloc(sizeof(STACK_SIZE));
+		PCB_LIST[i]->stack = (char*)malloc(STACK_SIZE);
 		PCB_LIST[i]->next_pcb = NULL;
 		PCB_LIST[i]->a_count = 0;
 
