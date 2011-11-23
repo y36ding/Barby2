@@ -40,7 +40,7 @@ const InitProc INIT_TABLE[PROCESS_COUNT] = {
 		{ "CRT I proc\0", CRT_I_PROCESS_ID, 0, TRUE,	(pc)crt_i_proc },
 		{ "Timer I process\0", TIMER_I_PROCESS_ID, 0, TRUE, (pc)timer_i_proc },
 		{ "P Process\0", P_PROCESS_ID, 0, FALSE,(pc) processP },
-		{ "Process A\0", PROCA_ID, 2, FALSE, (pc)procA },
+		{ "Process A\0", PROCA_ID, 1, FALSE, (pc)procA },
 		{ "process B\0", PROCB_ID, 2, FALSE, (pc)procB },
 		{ "Process C\0", PROCC_ID, 2, FALSE,(pc) procC },
 		{ "NULL Process\0", NULL_PROCESS_ID, 0, FALSE,(pc) null_process },

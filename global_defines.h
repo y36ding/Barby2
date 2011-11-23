@@ -14,7 +14,7 @@ typedef int bool_t;
 #define PROCA_ID			   4
 #define PROCB_ID			   5
 #define PROCC_ID			   6
-#define NULL_PROCESS_ID  7
+#define NULL_PROCESS_ID		   7
 
 // RTX Constants
 #define MSG_ENV_SIZE 200

@@ -13,14 +13,15 @@ void crt_i_proc(int signum)
 		return;
 	}
 
-	ps("Inside CRT I proc");
+	//ps("Inside CRT I proc");
 
 	if (signum == SIGUSR2)
 	{
+
 #if DEBUG
-			fflush(stdout);
+			/*fflush(stdout);
 			printf("Current PCB msgQ size is %i for process 1\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) );
-			ps("Got SIGUSR2");
+			ps("Got SIGUSR2");*/
 #endif
 
 			MsgEnv* envTemp = NULL;
@@ -32,7 +33,7 @@ void crt_i_proc(int signum)
 			}
 			envTemp->msg_type = DISPLAY_ACK;
 			k_send_message(envTemp->sender_pid, envTemp);
-			ps("Display ACK sent by crt");
+			//ps("Display ACK sent by crt");
 			k_return_from_switch();
 			return;
 	}
@@ -42,7 +43,7 @@ void crt_i_proc(int signum)
 	if (env==NULL) {
 		env = (MsgEnv*)k_receive_message();
 	}
-
+/*
 #if DEBUG
 		fflush(stdout);
 		printf("Message received by crt i proc\n");
@@ -51,11 +52,11 @@ void crt_i_proc(int signum)
 		printf("The message data section holds \"%s\" \n",env->data);
 		fflush(stdout);
 #endif
-
+*/
 	strcpy(IN_MEM_P_CRT->outdata,env->data);
 
 #if DEBUG
-		printf("The message data section holds \"%s\" \n",IN_MEM_P_CRT->outdata);
+		//printf("The message data section holds \"%s\" \n",IN_MEM_P_CRT->outdata);
 #endif
 
 	MsgEnvQ_enqueue(DISPLAYQ,env);
@@ -74,19 +75,18 @@ void kbd_i_proc(int signum)
 		cleanup();
 	}
 
-	ps("Inside keyboard I proc");
+	//ps("Inside keyboard I proc");
 	MsgEnv* env = (MsgEnv*)k_receive_message();
 
 	if (env != NULL)
 	{
 		env->data[0] = '\0';
-		ps("Envelope recognized by kbd_i_proc");
+		//ps("Envelope recognized by kbd_i_proc");
 
 		// Loop until writing in shared memory is done
 		while (IN_MEM_P_KEY->ok_flag==OKAY_TO_WRITE);
 
 		//copies into first parameter from second parameter of length+1 bytes
-
 		if (IN_MEM_P_KEY->length != 0) {
 			memcpy(env->data,IN_MEM_P_KEY->indata,IN_MEM_P_KEY->length + 1);
 		} else {
@@ -100,7 +100,7 @@ void kbd_i_proc(int signum)
 		// Send message back to process that called us
 		k_send_message(env->sender_pid ,env);
 
-		ps("Keyboard sent message");
+		//ps("Keyboard sent message");
 
 		IN_MEM_P_KEY->length = 0;
 		IN_MEM_P_KEY->ok_flag = OKAY_TO_WRITE; // okay to write again

@@ -61,11 +61,9 @@ int k_release_message_env(MsgEnv* env)
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 {
-	if (DEBUG==1) {
-		ps("In send message");
-	}
+	//ps("In send message");
 
-	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
+	/*pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
 	if (!dest_pcb || !msg_envelope) {
 		return NULL_ARGUMENT;
@@ -85,10 +83,10 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 	}
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
-	return SUCCESS;
+	return SUCCESS;*/
 
 	//full implementation version
-	/*pcb* dest_pcb =  pid_to_pcb(dest_process_id);
+	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 	if (!dest_pcb || !msg_envelope) {
 		return NULL_ARGUMENT;
 	}
@@ -102,16 +100,16 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		pp(dest_pcb);
 	}
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
-	return SUCCESS;*/
+	return SUCCESS;
 }
 
 MsgEnv* k_receive_message()
 {
-	if (DEBUG==1) {
+	/*if (DEBUG==1) {
 		fflush(stdout);
-		//printf("Current PCB msgQ size is %i for PID %i\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue), CURRENT_PROCESS->pid );
-	}
-
+		printf("Current PCB msgQ size is %i for PID %i\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue), CURRENT_PROCESS->pid );
+	}*/
+	/*
 	MsgEnv* ret = NULL;
 
 	//printf("===CURRENT PROCESS = %i\n",CURRENT_PROCESS->pid);
@@ -125,29 +123,29 @@ MsgEnv* k_receive_message()
 		if (CURRENT_PROCESS->is_i_process == TRUE || CURRENT_PROCESS->state == NEVER_BLK_RCV)
 			return ret;
 	}
-	return ret;
+	return ret;*/
 	
 	//full implementation version
-	/*while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
+	MsgEnv * ret = NULL;
+	while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
 	{
 		if (CURRENT_PROCESS->is_i_process == TRUE ){
-			return NULL;
+			return ret;
 		}else{
 			printf("Process %s is getting blocked on receive\n",CURRENT_PROCESS->name);
 			k_process_switch(BLOCKED_ON_RCV);
 		}
 	}
 
-	MsgEnv *ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
+	ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
 	k_log_event(&RECEIVE_TRACE_BUF, ret);
-	return ret;*/
+	return ret;
 }
 
 int k_send_console_chars(MsgEnv *message_envelope)
 {
 	if (!message_envelope)
 		return NULL_ARGUMENT;
-
 
 	message_envelope->msg_type = DISPLAY_ACK;
 	int retVal = k_send_message(CRT_I_PROCESS_ID, message_envelope);
@@ -162,12 +160,10 @@ int k_get_console_chars(MsgEnv *message_envelope)
 	message_envelope->msg_type = CONSOLE_INPUT;
 	int retVal = k_send_message( KB_I_PROCESS_ID, message_envelope);
 
-	//CURRENT_PROCESS = pid_to_pcb(KB_I_PROCESS_ID);
-	ps("invoking kbd");
-	//kbd_i_proc(0);
+	/*ps("invoking kbd");
 	if (DEBUG==1) {
 		printf("keyboard process returned to get-console-chars\n");
-	}
+	}*/
 
 	return retVal;
 }

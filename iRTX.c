@@ -16,7 +16,16 @@ void null_process() {
 	while (1)
 	{
 	ps("In Null Process");
-	release_processor();
+	MsgEnv* env = (MsgEnv *)receive_message();
+
+	if(env!=NULL){
+		strcpy(env->data,"something funny");
+		printf("The message data section holds \"%s\" \n",env->data);
+		send_message(P_PROCESS_ID,env);
+	}else{
+		release_processor();
+	}
+
 	ps("Back in Null Process");
 	usleep(500000);
 	}
@@ -35,22 +44,25 @@ void processP() {
 	}
 	MsgEnv* env1 = request_msg_env();
 	k_get_trace_buffer(env1);*/
-	MsgEnv* env2 = request_msg_env();
+
+	int j=0;
+	for(j=0;j<10;j++){
+		MsgEnv* env3 = request_msg_env();
+		send_message(NULL_PROCESS_ID,env3);
+	}
 	release_processor();
 	ps("Back in process P 2");
-	MsgEnv* env3 = request_msg_env();
-	env2->dest_pid = 5;
+	MsgEnv* env2 = (MsgEnv *)receive_message();
 	release_processor();
 	ps("Back in process P again 3");
-	printf("the dest id in env2 is: %i\n", env2->dest_pid);
 	release_processor();
 	ps("Back in process P once more 4");
-	printf("the dest id in env2 is: %i\n", env2->dest_pid);
+	release_message_env(env2);
 	const int tWait = 500000;
 
-	ps("Requesting env in Proc P");
+	//ps("Requesting env in Proc P");
 	MsgEnv* env = request_msg_env();
-	ps("Envelopes Allocated");
+	//ps("Envelopes Allocated");
 
 	while (1) {
 	 ps("Asking for Characters");
@@ -66,7 +78,7 @@ void processP() {
 	 env = (MsgEnv*) receive_message();
 	 if (env != NULL && env->msg_type == CONSOLE_INPUT) {
 	 #if DEBUG
-		 printf("Keyboard Input Acknowledged");
+		 //printf("Keyboard Input Acknowledged");
 	 #endif
 	 }
 	 }
