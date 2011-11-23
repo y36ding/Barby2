@@ -6,6 +6,7 @@ void procA ()
 	//receive the message envelope from CCI when user types in 's'
 	//then deallocate the received message envelope
 	ps("1");
+	while(1){ps("In A");release_processor();usleep(50000);}
 	MsgEnv *init_msg = (MsgEnv*)receive_message();
 
 	while (init_msg==NULL) {

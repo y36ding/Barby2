@@ -17,12 +17,13 @@ void test_process() {
 	{
 	ps("In Test Process");
 	release_processor();
-	usleep(500000);
+	ps("Back in Test Process");
+	//usleep(500000);
 	}
 }
 
 void processP() {
-	ps("ProcessP Started");
+	ps("ProcessP Started 1");
 	// Test Trace Buffer
 	/*int i;
 	for (i=0;i<20;++i)
@@ -36,7 +37,11 @@ void processP() {
 	k_get_trace_buffer(env1);*/
 
 	release_processor();
-	ps("Back in process P");
+	ps("Back in process P 2");
+	release_processor();
+	ps("Back in process P again 3");
+	release_processor();
+	ps("Back in process P once more 4");
 	const int tWait = 500000;
 
 	ps("Requesting env in Proc P");
@@ -49,7 +54,7 @@ void processP() {
 	 // Request keyboard input
 	 get_console_chars(env);
 
-	 ps("Back in Process P. Keyboard has taken input");
+	 ps("Back in Process P. waiting for Keyboard msg");
 	 // Check if keyboard i proc sent a confirmation message
 	 env = receive_message();
 	 while (env == NULL) {
@@ -102,7 +107,7 @@ int main() {
 	//processP();
 	//ps("PROC A");
 
-	//ps("1");
+	ps("in main step 1");
 	//pp(CURRENT_PROCESS);
 	//k_process_switch(READY);
 

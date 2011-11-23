@@ -46,7 +46,7 @@ int init_all_lists() {
 				}
 				else
 				{
-					ps("Longjump worked");
+					ps("Longjump worked, program run for first time");
 					CURRENT_PROCESS->location();
 					ps("I SHOULDN'T BE HERE!");
 					pp(CURRENT_PROCESS);

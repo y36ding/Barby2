@@ -18,11 +18,11 @@ typedef int bool_t;
 #define TEST_PROCESS_ID 8
 
 // RTX Constants
-#define MSG_ENV_SIZE 500
+#define MSG_ENV_SIZE 200
 #define MSG_ENV_COUNT 30
 #define NUM_PRIORITY_LEVEL 4
-#define STACK_SIZE             10*4096
-#define STK_OFFSET            4
+#define STACK_SIZE             4*4096
+#define STK_OFFSET            16
 #define PROCESS_COUNT 8
 #define NUM_PRIORITIES 4
 

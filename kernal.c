@@ -2,6 +2,7 @@
 #include "kernal.h"
 #include "iProcs.h"
 #include "processQ.h"
+#include "procPQ.h"
 
 pcb* pid_to_pcb(int pid)
 {
@@ -54,9 +55,12 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		fflush(stdout);
 	}
 
-	ps("got here");
-
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
+	if(dest_pcb->state == BLOCKED_ON_RCV)
+	{
+		dest_pcb->state = READY;
+		proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
+	}
 	if (DEBUG==1){
 		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 	}
@@ -66,24 +70,18 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 
 MsgEnv* k_receive_message()
 {
-	if (DEBUG==1) {
-		fflush(stdout);
-		//printf("Current PCB msgQ size is %i for PID %i\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue), CURRENT_PROCESS->pid );
-	}
-
-	MsgEnv* ret = NULL;
-
 	//printf("===CURRENT PROCESS = %i\n",CURRENT_PROCESS->pid);
-
-	if (MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) > 0){
-		ret = (MsgEnv*)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
-		k_log_event(&RECEIVE_TRACE_BUF, ret);
-	}
-	else
+	while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
 	{
-		if (CURRENT_PROCESS->is_i_process == TRUE || CURRENT_PROCESS->state == NEVER_BLK_RCV)
-			return ret;
+		if (CURRENT_PROCESS->is_i_process == TRUE ){
+			return NULL;
+		}else{
+			k_process_switch(BLOCKED_ON_RCV);
+		}
 	}
+
+	MsgEnv *ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
+	k_log_event(&RECEIVE_TRACE_BUF, ret);
 	return ret;
 }
 
@@ -192,6 +190,7 @@ void k_process_switch(ProcessState next_state)
 		CURRENT_PROCESS->state = next_state;
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
+		CURRENT_PROCESS->state = EXECUTING;
 		k_context_switch(&(old_process->buf), &(next_process->buf));
 	}
 	ps("Back in process switch after context");
@@ -200,9 +199,11 @@ void k_process_switch(ProcessState next_state)
 void k_context_switch(jmp_buf* prev, jmp_buf* next)
 {
 	int val = setjmp(*prev);
+	ps("in context switch, right before val == 0");
 	if (val == 0)
 	{
 		longjmp(*next, 1);
+		ps("in context_switch, resuming process");
 	}
 	ps("Back in context switch after longjump");
 }
