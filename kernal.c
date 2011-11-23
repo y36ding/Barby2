@@ -46,6 +46,17 @@ int k_release_message_env(MsgEnv* env)
 	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
 	// check processes blocked for allocate envelope later
 	return SUCCESS;
+
+	/*if (env == NULL)
+		return NULL_ARGUMENT;
+	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+	pcb*  blocked_proc = proc_q_dequeue(BLOCKED_QUEUE);
+	if (blocked_proc !=NULL)
+	{
+		block_proc->state = READY;
+		proc_pq_enqueue(RDY_PROC_QUEUE);
+	}
+	return SUCCESS;*/
 }
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
@@ -68,8 +79,6 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		printf("Dest pid is %i\n",dest_pcb->pid);
 		fflush(stdout);
 	}
-
-	ps("got here");
 
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 	if (DEBUG==1){
@@ -165,6 +174,9 @@ int k_get_console_chars(MsgEnv *message_envelope)
 
 void atomic(bool_t state)
 {
+	//disable atomic for now
+	return;
+
 	static sigset_t oldmask;
 	sigset_t newmask;
 	if (state == TRUE)
@@ -185,8 +197,12 @@ void atomic(bool_t state)
 	}
 	else
 	{
+		ps("before decrementing atomic count, pcb state");
+		pp(CURRENT_PROCESS);
 		CURRENT_PROCESS->a_count--; //every time a primitive finishes, decrement by 1
 		//if all primitives completes, restore old mask, allow signals
+		ps("after decrementing atomic count, check pcb state again");
+		pp(CURRENT_PROCESS);
 		if (CURRENT_PROCESS->a_count == 0)
 		{
 			//restore old mask
@@ -236,31 +252,30 @@ void k_process_switch(ProcessState next_state)
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
 		CURRENT_PROCESS->state = EXECUTING;
-		ps("Inside Process Switch. OLD/Current process is:");
-		pp(old_process);
-		ps("NEW/Next process is");
-		pp(next_process);
+		//ps("Inside Process Switch. OLD/Current process is:");
+		//pp(old_process);
+		//ps("NEW/Next process is");
+		//pp(next_process);
 		k_context_switch(&(old_process->buf), &(CURRENT_PROCESS->buf));
 	}
-	ps("Back in process switch after context");
+	//ps("Back in process switch after context");
 }
 
 void k_context_switch(jmp_buf* prev, jmp_buf* next)
 {
 	int val = setjmp(*prev);
-	ps("in context switch, before if val==0");
 	if (val == 0)
 	{
 		longjmp(*next, 1);
 	}
-	ps("Back in context switch after longjump");
+	//ps("Back in context switch after longjump");
 }
 
 int k_release_processor()
 {
 	proc_pq_enqueue(RDY_PROC_QUEUE,CURRENT_PROCESS);
 	k_process_switch(READY);
-	ps("in release processor, beforing to executing program");
+	//ps("in release processor, beforing to executing program");
 	return SUCCESS;
 }
 

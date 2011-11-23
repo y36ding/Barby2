@@ -28,7 +28,7 @@ int init_all_lists() {
 		PCB_LIST[i]->is_i_process = INIT_TABLE[i].is_i_process;
 		PCB_LIST[i]->location = INIT_TABLE[i].pc_location;
 		PCB_LIST[i]->stack = (char*)malloc(sizeof(STACK_SIZE));
-		PCB_LIST[i]->next_pcb = NULL;
+		PCB_LIST[i]->next = NULL;
 		PCB_LIST[i]->a_count = 0;
 
 		printf("Initialized pcb: %i, Name :%s, Pointer: %p, Rcv Queue:%p\n",i, PCB_LIST[i]->name, PCB_LIST[i], PCB_LIST[i]->rcv_msg_queue);

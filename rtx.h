@@ -31,7 +31,7 @@ void die(int signal);
 
 // User Processes
 void processP();
-void test_process();
+void null_process();
 void procA();
 void procB();
 void procC();
