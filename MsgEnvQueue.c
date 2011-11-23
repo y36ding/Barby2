@@ -49,8 +49,10 @@ MsgEnv* MsgEnvQ_dequeue(MsgEnvQ *queue)
 	MsgEnv* returnEnv = queue->head;
 	if (queue->head == queue->tail)
 	{
+		queue->head = NULL;
 		queue->tail = NULL;
 	}
+
 	if (queue->head != NULL)
 	{
 		queue->head = queue->head->next;

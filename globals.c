@@ -38,12 +38,12 @@ int FILE_STATUS;
 const InitProc INIT_TABLE[PROCESS_COUNT] = {
 		{ "Keyboard I proc\0", KB_I_PROCESS_ID,	0, TRUE, (pc)kbd_i_proc },
 		{ "CRT I proc\0", CRT_I_PROCESS_ID, 0, TRUE,	(pc)crt_i_proc },
-		{ "P Process\0", P_PROCESS_ID, 0, FALSE,(pc) processP },
 		{ "Timer I process\0", TIMER_I_PROCESS_ID, 0, TRUE, (pc)timer_i_proc },
-		{ "Process A\0", PROCA_ID, 2, FALSE, (pc)procA },
+		{ "P Process\0", P_PROCESS_ID, 0, FALSE,(pc) processP },
+		{ "Process A\0", PROCA_ID, 1, FALSE, (pc)procA },
 		{ "process B\0", PROCB_ID, 2, FALSE, (pc)procB },
 		{ "Process C\0", PROCC_ID, 2, FALSE,(pc) procC },
-		{ "Test Process\0", TEST_PROCESS_ID, 1, FALSE,(pc) test_process },
+		{ "Test Process\0", TEST_PROCESS_ID, 1, FALSE,(pc) test_process }
 };
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

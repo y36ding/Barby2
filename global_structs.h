@@ -43,7 +43,6 @@ typedef struct process_control_block {
    	char * stack;
 	int a_count;
 	bool_t is_i_process;
-	struct process_control_block* next_pcb;
 } pcb;
 
 typedef struct init_proc

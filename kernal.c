@@ -245,7 +245,7 @@ int k_change_priority(int target_priority, int target_pid)
 			return ILLEGAL_ARGUMENT;
 
 	pcb* target_pcb = pid_to_pcb(target_pid);
-	if (target_pcb->pid == NULL_PROCESS_ID || target_pcb->is_i_process == TRUE)
+	if (/*target_pcb->pid == NULL_PROCESS_ID ||*/ target_pcb->is_i_process == TRUE)
 		return ILLEGAL_ARGUMENT;
 
 	// if on a ready queue, take if off, change priority, and put it back on
