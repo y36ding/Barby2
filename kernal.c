@@ -2,7 +2,6 @@
 #include "kernal.h"
 #include "iProcs.h"
 #include "processQ.h"
-#include "procPQ.h"
 
 pcb* pid_to_pcb(int pid)
 {
@@ -23,6 +22,21 @@ MsgEnv* k_request_msg_env()
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
 	return free_env;
+
+	//full implementation version
+	/*while(MsgEnvQ_is_empty(FREE_ENV_QUEUE))
+	{
+		if(CURRENT_PROCESS->is_i_process == TRUE)
+		{
+			return NULL;
+		}else{
+			proc_q_enqueue(BLOCKED_QUEUE, CURRENT_PROCESS);
+			k_process_switch(BLOCKED_ON_ENV_REQUEST);
+		}
+	}
+
+	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
+	return free_env;*/
 }
 
 int k_release_message_env(MsgEnv* env)
@@ -55,34 +69,69 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		fflush(stdout);
 	}
 
+	ps("got here");
+
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
-	if(dest_pcb->state == BLOCKED_ON_RCV)
-	{
-		dest_pcb->state = READY;
-		proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
-	}
 	if (DEBUG==1){
 		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 	}
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
 	return SUCCESS;
+
+	//full implementation version
+	/*pcb* dest_pcb =  pid_to_pcb(dest_process_id);
+	if (!dest_pcb || !msg_envelope) {
+		return NULL_ARGUMENT;
+	}
+	msg_envelope->sender_pid = CURRENT_PROCESS->pid;
+	msg_envelope->dest_pid = dest_process_id;
+	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
+	if(dest_pcb->state == BLOCKED_ON_RCV)
+	{
+		dest_pcb->state = READY;
+		proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
+		pp(dest_pcb);
+	}
+	k_log_event(&SEND_TRACE_BUF, msg_envelope);
+	return SUCCESS;*/
 }
 
 MsgEnv* k_receive_message()
 {
+	if (DEBUG==1) {
+		fflush(stdout);
+		//printf("Current PCB msgQ size is %i for PID %i\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue), CURRENT_PROCESS->pid );
+	}
+
+	MsgEnv* ret = NULL;
+
 	//printf("===CURRENT PROCESS = %i\n",CURRENT_PROCESS->pid);
-	while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
+
+	if (MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) > 0){
+		ret = (MsgEnv*)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
+		k_log_event(&RECEIVE_TRACE_BUF, ret);
+	}
+	else
+	{
+		if (CURRENT_PROCESS->is_i_process == TRUE || CURRENT_PROCESS->state == NEVER_BLK_RCV)
+			return ret;
+	}
+	return ret;
+	
+	//full implementation version
+	/*while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
 	{
 		if (CURRENT_PROCESS->is_i_process == TRUE ){
 			return NULL;
 		}else{
+			printf("Process %s is getting blocked on receive\n",CURRENT_PROCESS->name);
 			k_process_switch(BLOCKED_ON_RCV);
 		}
 	}
 
 	MsgEnv *ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
 	k_log_event(&RECEIVE_TRACE_BUF, ret);
-	return ret;
+	return ret;*/
 }
 
 int k_send_console_chars(MsgEnv *message_envelope)
@@ -183,15 +232,15 @@ void k_process_switch(ProcessState next_state)
 	// was successful
 	if (next_process != NULL)
 	{
-		ps("Inside Process Switch. Current process is:");
-		pp(CURRENT_PROCESS);
-		ps("Next process is");
-		pp(next_process);
 		CURRENT_PROCESS->state = next_state;
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
 		CURRENT_PROCESS->state = EXECUTING;
-		k_context_switch(&(old_process->buf), &(next_process->buf));
+		ps("Inside Process Switch. OLD/Current process is:");
+		pp(old_process);
+		ps("NEW/Next process is");
+		pp(next_process);
+		k_context_switch(&(old_process->buf), &(CURRENT_PROCESS->buf));
 	}
 	ps("Back in process switch after context");
 }
@@ -199,11 +248,10 @@ void k_process_switch(ProcessState next_state)
 void k_context_switch(jmp_buf* prev, jmp_buf* next)
 {
 	int val = setjmp(*prev);
-	ps("in context switch, right before val == 0");
+	ps("in context switch, before if val==0");
 	if (val == 0)
 	{
 		longjmp(*next, 1);
-		ps("in context_switch, resuming process");
 	}
 	ps("Back in context switch after longjump");
 }
@@ -212,6 +260,7 @@ int k_release_processor()
 {
 	proc_pq_enqueue(RDY_PROC_QUEUE,CURRENT_PROCESS);
 	k_process_switch(READY);
+	ps("in release processor, beforing to executing program");
 	return SUCCESS;
 }
 
