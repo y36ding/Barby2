@@ -4,6 +4,7 @@
 
 void crt_i_proc(int signum)
 {
+	printf("Current process is: %s \n",CURRENT_PROCESS->name);
 	int error = k_pseudo_process_switch(CRT_I_PROCESS_ID);
 
 	if (error != SUCCESS)
@@ -13,7 +14,7 @@ void crt_i_proc(int signum)
 		return;
 	}
 
-	//ps("Inside CRT I proc");
+	ps("Inside CRT I proc");
 
 	if (signum == SIGUSR2)
 	{
@@ -24,6 +25,7 @@ void crt_i_proc(int signum)
 			ps("Got SIGUSR2");*/
 #endif
 
+			ps("SIGUSR2 received!\n");
 			MsgEnv* envTemp = NULL;
 			envTemp = (MsgEnv*)MsgEnvQ_dequeue(DISPLAYQ);
 			if (envTemp == NULL)
@@ -33,8 +35,11 @@ void crt_i_proc(int signum)
 			}
 			envTemp->msg_type = DISPLAY_ACK;
 			k_send_message(envTemp->sender_pid, envTemp);
+			ps("CRT returning envelope!");
 			//ps("Display ACK sent by crt");
 			k_return_from_switch();
+			printf("Current process is: %s \n",CURRENT_PROCESS->name);
+			printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
 			return;
 	}
 
@@ -54,15 +59,16 @@ void crt_i_proc(int signum)
 #endif
 */
 	strcpy(IN_MEM_P_CRT->outdata,env->data);
-
 #if DEBUG
-		//printf("The message data section holds \"%s\" \n",IN_MEM_P_CRT->outdata);
+		printf("%s  %s\n",IN_MEM_P_CRT->outdata,env->data);
+		printf("The message data section holds \"%s\" \n",IN_MEM_P_CRT->outdata);
 #endif
 
 	MsgEnvQ_enqueue(DISPLAYQ,env);
 	IN_MEM_P_CRT->ok_flag =  OKAY_DISPLAY;
 
 	k_return_from_switch();
+	printf("Current process is: %s \n",CURRENT_PROCESS->name);
 	return;
 }
 
@@ -75,13 +81,14 @@ void kbd_i_proc(int signum)
 		cleanup();
 	}
 
-	//ps("Inside keyboard I proc");
+	ps("Inside keyboard I proc");
 	MsgEnv* env = (MsgEnv*)k_receive_message();
 
 	if (env != NULL)
 	{
+
 		env->data[0] = '\0';
-		//ps("Envelope recognized by kbd_i_proc");
+		ps("Envelope recognized by kbd_i_proc");
 
 		// Loop until writing in shared memory is done
 		while (IN_MEM_P_KEY->ok_flag==OKAY_TO_WRITE);
@@ -94,10 +101,15 @@ void kbd_i_proc(int signum)
 		}
 
 		// Send message back to process that called us
-		env->msg_type = CONSOLE_INPUT;
-		k_send_message(env->sender_pid ,env);
+		//merge conflict here.... keep my code
+		if (!strcmp(IN_MEM_P_KEY->indata,"s")) {
+			k_send_message(PROCA_ID,env);
+		} else {
+			env->msg_type=CONSOLE_INPUT;
+			k_send_message(env->sender_pid ,env);
+		}
 
-		//ps("Keyboard sent message");
+		ps("Keyboard sent message");
 
 		IN_MEM_P_KEY->length = 0;
 		IN_MEM_P_KEY->ok_flag = OKAY_TO_WRITE; // okay to write again
@@ -169,4 +181,3 @@ void clock_inc_time() {
 void clock_set_time(int time) {
     NUM_OF_TICKS = time;
 }
-

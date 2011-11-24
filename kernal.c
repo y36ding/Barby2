@@ -18,8 +18,10 @@ MsgEnv* k_request_msg_env()
 {
 	// the real code will keep on trying to search free env
 	// queue for envelope and get blocked otherwise
-	if (MsgEnvQ_size(FREE_ENV_QUEUE) == 0)
+	if (MsgEnvQ_size(FREE_ENV_QUEUE) == 0) {
+		//ps("NO FREE ENVELOPES");
 		return NULL;
+	}
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
 	return free_env;
@@ -29,7 +31,19 @@ int k_release_message_env(MsgEnv* env)
 {
 	if (env == NULL)
 		return NULL_ARGUMENT;
+
+	//env->next=NULL;
+	//env->data='\0';
+	//env->dest_pid=0;
+	//env->time_delay=0;
+	//env->msg_type=NONE;
+	//env->sender_pid=0;
+
 	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+
+#if DEBUG
+	//printf("MSG ENV RELEASED!\n");
+#endif
 	// check processes blocked for allocate envelope later
 	return SUCCESS;
 }
@@ -40,6 +54,7 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		ps("In send message");
 
 
+	/*
 	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
 	if (!dest_pcb || !msg_envelope) {
@@ -56,6 +71,24 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	}
 
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
+	if (DEBUG==1){
+		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+	}
+	k_log_event(&SEND_TRACE_BUF, msg_envelope);
+	return SUCCESS;*/
+
+	//full implementation version
+	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
+	if (!dest_pcb || !msg_envelope) {
+		return NULL_ARGUMENT;
+	}
+	msg_envelope->sender_pid = CURRENT_PROCESS->pid;
+	msg_envelope->dest_pid = dest_process_id;
+	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
+#if DEBUG
+	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+#endif
+
 	if(dest_pcb->state == BLOCKED_ON_RCV)
 	{
 		dest_pcb->state = READY;
@@ -76,6 +109,9 @@ MsgEnv* k_receive_message()
 		if (CURRENT_PROCESS->is_i_process == TRUE ){
 			return NULL;
 		}else{
+#if DEBUG //leave my code in for merge conflict here
+			printf("Process %s is getting blocked on receive\n",CURRENT_PROCESS->name);
+#endif
 			k_process_switch(BLOCKED_ON_RCV);
 		}
 	}
@@ -125,8 +161,13 @@ void atomic(bool_t state)
 	}
 	else
 	{
+		//MERGEEE CONFLICT (LEAVE MY CODE, leave the comments in)
+		ps("before decrementing atomic count, pcb state");
+		//pp(CURRENT_PROCESS);
 		CURRENT_PROCESS->a_count--; //every time a primitive finishes, decrement by 1
 		//if all primitives completes, restore old mask, allow signals
+		ps("after decrementing atomic count, check pcb state again");
+		//pp(CURRENT_PROCESS);
 		if (CURRENT_PROCESS->a_count == 0)
 		{
 			//restore old mask
@@ -138,12 +179,10 @@ void atomic(bool_t state)
 int k_pseudo_process_switch(int pid)
 {
 	pcb* p = (pcb*)pid_to_pcb(pid);
-	pp(p);
 	if (p == NULL)
 		return ILLEGAL_ARGUMENT;
 	PREV_PROCESS = CURRENT_PROCESS;
 	CURRENT_PROCESS = p;
-	pp(p);
 	return SUCCESS;
 }
 
@@ -168,6 +207,7 @@ int k_request_delay(int delay, int wakeup_code, MsgEnv *msg_env)
 void k_process_switch(ProcessState next_state)
 {
 	pcb* next_process = (pcb*)proc_pq_dequeue(RDY_PROC_QUEUE);
+	//pp(next_process);
 	// Note this is not checking for null process. It is just for checking the dequeue
 	// was successful
 	if (next_process != NULL)
@@ -179,9 +219,7 @@ void k_process_switch(ProcessState next_state)
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
 		CURRENT_PROCESS->state = EXECUTING;
-		ps("Next process is");
-		//pp(next_process);
-		k_context_switch((old_process->buf), (next_process->buf));
+		k_context_switch((old_process->buf), (CURRENT_PROCESS->buf));
 	}
 	ps("Back in process switch after context");
 }
@@ -189,16 +227,20 @@ void k_process_switch(ProcessState next_state)
 void k_context_switch(jmp_buf prev, jmp_buf next)
 {
 	int val = setjmp(prev);
-	ps("in context switch, right before val == 0");
+	//ps("got here");
 	if (val == 0)
 	{
+		//ps("got here2");
 		longjmp(next, 1);
 	}
-	ps("Back in context switch after longjump");
+	//pp(CURRENT_PROCESS);
+	//printf("%p",CURRENT_PROCESS->buf);
+	//ps("Back in context switch after longjump");
 }
 
 int k_release_processor()
 {
+	//pp(CURRENT_PROCESS);
 	proc_pq_enqueue(RDY_PROC_QUEUE,CURRENT_PROCESS);
 	k_process_switch(READY);
 	ps("in k release processor before returning");
