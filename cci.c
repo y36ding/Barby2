@@ -1,5 +1,6 @@
 #include "rtx.h"
 #include "userAPI.h"
+#include "cci.h"
 
 void cci_print(const char* print)
 {
@@ -39,7 +40,6 @@ void cci_process()
 
 		//Obtained keyboard input
 		char command [MAXCHAR];
-		char first_letter[2];
 		int offset = sprintf(command,  cci_env->data);
 
 		// Send a message to process A. This only happens once. If it has already been sent, then prompt user.
@@ -93,7 +93,7 @@ void cci_process()
 			// extract priority and pid from the command
 			if (sscanf(command, "%*s %i %i", &priority, &pid)!=2)
 			{
-				sprintf(formatted_msg, "Invalid format for command %s. It should be: n <priority> <process id>\n", first_letter);
+				sprintf(formatted_msg, "Invalid format for command %s.clockTime;; It should be: n <priority> <process id>\n", first_letter);
 				cci_print(formatted_msg);
 			}
 			else
@@ -121,6 +121,17 @@ void cci_process()
 			release_message_env(trace_env);
 			release_message_env(CCI_DISPLAY_ENV);
 			terminate();
+		}
+		// debugging function. find where all the envelopes are.
+		else if(strcmp(command, "en") == 0)
+		{
+			int offset = sprintf(formatted_msg, "\nEnvelope Num\tHeld By\n");
+			for (int i  = 0; i < MSG_ENV_COUNT; ++i)
+			{
+				const char* pcb_name = MSG_LIST[i]->dest_pid == -1? "NONE":PCB_LIST[MSG_LIST[i]->dest_pid]->name;
+				offset += sprintf(formatted_msg+offset, "%i\t\t%s\n", i+1, pcb_name);
+			}
+			cci_print(formatted_msg);
 		}
 		// One space and enter results in CCI: being printed again
 		else if(strcmp(command, " ") == 0)

@@ -34,6 +34,7 @@ int k_release_message_env(MsgEnv* env)
 		return NULL_ARGUMENT;
 
 	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+	env->sender_pid = -1; // debugging purposes. -1 means no process has this envelope
 	if (proc_q_is_empty(BLOCKED_QUEUE) != TRUE)
 	{
 		pcb* blocked_process = proc_q_dequeue(BLOCKED_QUEUE);
@@ -56,8 +57,8 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	msg_envelope->dest_pid = dest_process_id;
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 
-#if DEBUG
-	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+#if 1
+	printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
 	if(dest_pcb->state == BLOCKED_ON_RCV)

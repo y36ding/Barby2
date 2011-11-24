@@ -23,7 +23,7 @@ typedef int bool_t;
 
 // RTX Constants
 #define MSG_ENV_SIZE 		   1000
-#define MSG_ENV_COUNT 		   50
+#define MSG_ENV_COUNT 		   30
 #define NUM_PRIORITY_LEVEL 	   4
 #define STACK_SIZE             4*4096
 #define STK_OFFSET             16
