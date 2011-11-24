@@ -12,6 +12,7 @@ void procA ()
 
 	int num_count = 0;
 
+	/*
 	MsgEnv *env = (MsgEnv*)request_msg_env();
 	ps("Timer for 5 secs");
 	request_delay(5,WAKEUP10,env);
@@ -19,6 +20,7 @@ void procA ()
 	while(env->msg_type!=WAKEUP10) {
 		env = (MsgEnv*) receive_message();
 	}
+	*/
 
 	//loop forever
 	while(1)

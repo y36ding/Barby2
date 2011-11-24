@@ -37,6 +37,6 @@ typedef int bool_t;
 #define ON TRUE
 #define OFF FALSE
 
-#define DEBUG 1
+#define DEBUG 0
 
 #endif
