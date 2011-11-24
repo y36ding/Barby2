@@ -209,13 +209,13 @@ int k_request_process_status(MsgEnv *env)
 {
 	char status[500];
     char header[80];
-    sprintf(header, "Process ID\t\tState\t\tPriority\n");
+    sprintf(header, "Process ID\tPriority\tState\n");
     strcat(status, header);
 	int i;
 	for (i = 0; i < PROCESS_COUNT; ++i)
 	{
 		char proc_status[100];
-		sprintf(proc_status, "%i\t\t%s\t\t%i\n", PCB_LIST[i]->pid, state_type(PCB_LIST[i]->state), PCB_LIST[i]->priority);
+		sprintf(proc_status, "%i\t\t%i\t\t%s\n", PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
 		strcat(status, proc_status);
 		/**status = PCB_LIST[i]->pid;
 		status ++;
@@ -240,7 +240,7 @@ int k_change_priority(int target_priority, int target_pid)
 			return ILLEGAL_ARGUMENT;
 
 	pcb* target_pcb = pid_to_pcb(target_pid);
-	if (/*target_pcb->pid == NULL_PROCESS_ID ||*/ target_pcb->is_i_process == TRUE)
+	if (target_pcb->pid == NULL_PROCESS_ID)
 		return ILLEGAL_ARGUMENT;
 
 	// if on a ready queue, take if off, change priority, and put it back on

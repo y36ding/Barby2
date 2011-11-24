@@ -16,6 +16,7 @@ typedef int bool_t;
 #define PROCC_ID			   6
 #define TEST_PROCESS_ID 7
 #define CCI_PROCESS_ID 8
+#define NULL_PROCESS_ID TEST_PROCESS_ID // not implemneted as a process yet. We are going to replace test with null
 
 
 // RTX Constants

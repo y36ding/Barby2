@@ -103,13 +103,13 @@ char* msg_type(int i)
 	switch(i)
 	{
 	case CONSOLE_INPUT:
-		return "CONSOLE INPUT\n";
+		return "CONSOLE INPUT";
 	case DISPLAY_ACK:
-		return "DISPLAY_ACK\n";
+		return "DISPLAY_ACK";
 	case COUNT_REPORT:
-		return "COUNT_REPORT\n";
+		return "COUNT_REPORT";
 	case WAKEUP10:
-		return "WAKEUP10\n";
+		return "WAKEUP10";
 	default:
 		return "No Type";
 	}
@@ -120,17 +120,17 @@ char* state_type(int i)
 	switch(i)
 	{
 	case READY:
-		return "READY\n";
+		return "READY";
 	case EXECUTING:
-		return "EXECUTING\n";
+		return "EXECUTING";
 	case BLOCKED_ON_ENV_REQUEST:
-		return "BLOCKED_ON_ENV_REQUEST\n";
+		return "BLOCKED_ON_ENV_REQUEST";
 	case BLOCKED_ON_RCV:
-		return "BLOCKED_ON_RCV\n";
+		return "BLOCKED_ON_RCV";
 	case NEVER_BLK_RCV:
-		return "NEVER_BLK_RCV\n";
+		return "NEVER_BLK_RCV";
 	case INTERRUPTED:
-		return "INTERRUPTED\n";
+		return "INTERRUPTED";
 	default:
 		return "No Type";
 	}

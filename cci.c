@@ -83,9 +83,14 @@ void cci_process()
 		{
 			cci_print("We don't support this command yet");
 		}
-		else if(strcmp(command, "c") == 0)
+		// Display Trace Buffers
+		else if(strcmp(command, "b") == 0)
 		{
-			cci_print("We don't support this command yet");
+			retVal = get_trace_buffer(trace_env);
+			if (retVal != SUCCESS)
+				cci_print("Failed to get trace buffers");
+			sprintf(formatted_msg, "%s", trace_env->data);
+			cci_print(formatted_msg);
 		}
 		else if(strcmp(command, "c") == 0)
 		{
