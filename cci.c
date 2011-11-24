@@ -7,19 +7,7 @@ void cci_print(const char* print)
 	int ret = send_console_chars(CCI_DISPLAY_ENV);
 	if (ret==SUCCESS)
 	{
-        while (1)
-        {
-            MsgEnv *env = receive_message();
-            if (env->msg_type == DISPLAY_ACK)
-            {
-                break;
-            }
-            else
-            {
-            	release_message_env(env);
-            }
-
-        }
+            CCI_DISPLAY_ENV = receive_message();
 	}
 }
 
@@ -31,7 +19,7 @@ void cci_process()
 	a_env = request_msg_env(); // this wont be released as process A will release it later
 	process_status_env = request_msg_env();
 	trace_env = request_msg_env();
-	char formatted_msg[300];
+	char formatted_msg[1000];
 	int retVal;
 
 	while(1)
@@ -42,11 +30,11 @@ void cci_process()
 		cci_print("CCI: ");
 		get_console_chars(kbd_input);
 
-		while(cci_env == NULL || cci_env->msg_type != CONSOLE_INPUT)
+		cci_env = receive_message();
+		while(cci_env->msg_type != CONSOLE_INPUT)
 		{
-					release_message_env(cci_env);
-					usleep(twait);
-					cci_env = receive_message();
+			release_message_env(cci_env);
+			cci_env = receive_message();
 		}
 
 		//Obtained keyboard input
@@ -74,7 +62,7 @@ void cci_process()
 			retVal = request_process_status(process_status_env);
 			if (retVal != SUCCESS)
 				cci_print("Failed to request process status");
-			sprintf(formatted_msg, "%s", process_status_env->data);
+			sprintf(formatted_msg,  process_status_env->data);
 			cci_print(formatted_msg);
 		}
 		else if(strcmp(command, "cd") == 0)
@@ -83,7 +71,7 @@ void cci_process()
 		}
 		else if(strcmp(command, "ct") == 0)
 		{
-			cci_print("We don't support this command yet");
+			displayClock(0);
 		}
 		// Display Trace Buffers
 		else if(strcmp(command, "b") == 0)

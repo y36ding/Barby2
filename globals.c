@@ -48,7 +48,7 @@ const InitProc INIT_TABLE[PROCESS_COUNT] = {
 		{ "Process C\0", PROCC_ID, 1, FALSE,(pc) procC },
 		{ "NULL Process\0", NULL_PROCESS_ID, 2, FALSE,(pc) null_process },
 		{ "TEST PROCESS\0", TEST_PROCESS_ID, 4, FALSE,(pc) test_process},
-		{ "CLOCK PROCESS\0", CLOCK_PROCESS_ID, 3, FALSE,(pc) clock_process},
+		{ "CLOCK PROCESS\0", CLOCK_PROCESS_ID, 0, FALSE,(pc) clock_process},
 		{ "CCI Process\0", CCI_PROCESS_ID, 0, FALSE,(pc) cci_process}
 };
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

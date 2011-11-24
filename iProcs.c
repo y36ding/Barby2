@@ -111,6 +111,7 @@ void kbd_i_proc(int signum)
 }
 
 void timer_i_proc(int signum) {
+	//printf("In get time. Num ticks %i\n", NUM_OF_TICKS);
 
 	int error = k_pseudo_process_switch(TIMER_I_PROCESS_ID);
 	if (error != SUCCESS)
@@ -118,6 +119,7 @@ void timer_i_proc(int signum) {
 		printf("Error! Context Switch failed in keyboard I process");
 		cleanup();
 	}
+
 
 	//while(1)
 	//  {
@@ -162,14 +164,18 @@ void timer_i_proc(int signum) {
 
 }
 
-int clock_get_time() {
+int clock_get_time()
+{
+	//printf("In get time. Num ticks %i\n", NUM_OF_TICKS);
     return NUM_OF_TICKS;
 }
 
 void clock_inc_time() {
+	//printf("In inc time. Num ticks %i\n", NUM_OF_TICKS);
     NUM_OF_TICKS++;
 }
 
 void clock_set_time(int time) {
+	//printf("In set time. Num ticks %i\n", NUM_OF_TICKS);
     NUM_OF_TICKS = time;
 }

@@ -92,7 +92,7 @@ void init_signals()
 	sigset(SIGUSR2, crt_i_proc);
 	sigset(SIGALRM,timer_i_proc);
 
-	//alarm(1);
+	alarm(1);
 }
 
 void init_mmaps() {
