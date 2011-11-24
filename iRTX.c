@@ -16,13 +16,15 @@
 void null_process() {
 	while(1) {
 		release_processor();
+		usleep(500000);
 	}
 }
 
 void test_process() {
 
 	while (1) {
-		printf("In Test Process\n");
+		release_processor();
+		/*printf("In Test Process\n");
 		MsgEnv* env = (MsgEnv *) receive_message();
 
 		if (env != NULL) {
@@ -34,7 +36,7 @@ void test_process() {
 		}
 
 		ps("Back in Test Process");
-		usleep(500000);
+		usleep(500000);*/
 	}
 }
 
@@ -159,14 +161,10 @@ int main() {
 	// Enter scheduler
 
 
-    pcb * first_pcb = proc_pq_dequeue(RDY_PROC_QUEUE);
-    CURRENT_PROCESS = first_pcb;
-    first_pcb->state = EXECUTING;
-
-    MsgEnv* env = request_msg_env();
-    send_message(KB_I_PROCESS_ID,env);
-
-    longjmp(first_pcb->buf, 1);
+   pcb * first_pcb = proc_pq_dequeue(RDY_PROC_QUEUE);
+   CURRENT_PROCESS = first_pcb;
+   first_pcb->state = EXECUTING;
+   longjmp(first_pcb->buf, 1);
 
 	ps("Back in main");
 	//k_process_switch(READY);

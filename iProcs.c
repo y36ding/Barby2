@@ -4,7 +4,9 @@
 
 void crt_i_proc(int signum)
 {
+#if DEBUG
 	printf("Current process is: %s \n",CURRENT_PROCESS->name);
+#endif
 	int error = k_pseudo_process_switch(CRT_I_PROCESS_ID);
 
 	if (error != SUCCESS)
@@ -38,8 +40,10 @@ void crt_i_proc(int signum)
 			ps("CRT returning envelope!");
 			//ps("Display ACK sent by crt");
 			k_return_from_switch();
+#if DEBUG
 			printf("Current process is: %s \n",CURRENT_PROCESS->name);
 			printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
+#endif
 			return;
 	}
 
@@ -48,16 +52,7 @@ void crt_i_proc(int signum)
 	if (env==NULL) {
 		env = (MsgEnv*)k_receive_message();
 	}
-/*
-#if DEBUG
-		fflush(stdout);
-		printf("Message received by crt i proc\n");
-		fflush(stdout);
-		printf("Current PCB msgQ size is %i for process 1\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) );
-		printf("The message data section holds \"%s\" \n",env->data);
-		fflush(stdout);
-#endif
-*/
+
 	strcpy(IN_MEM_P_CRT->outdata,env->data);
 #if DEBUG
 		printf("%s  %s\n",IN_MEM_P_CRT->outdata,env->data);
@@ -68,7 +63,6 @@ void crt_i_proc(int signum)
 	IN_MEM_P_CRT->ok_flag =  OKAY_DISPLAY;
 
 	k_return_from_switch();
-	printf("Current process is: %s \n",CURRENT_PROCESS->name);
 	return;
 }
 
@@ -86,8 +80,6 @@ void kbd_i_proc(int signum)
 
 	if (env != NULL)
 	{
-
-		env->data[0] = '\0';
 		ps("Envelope recognized by kbd_i_proc");
 
 		// Loop until writing in shared memory is done
@@ -102,12 +94,12 @@ void kbd_i_proc(int signum)
 
 		// Send message back to process that called us
 		//merge conflict here.... keep my code
-		if (!strcmp(IN_MEM_P_KEY->indata,"s")) {
+		/*if (!strcmp(IN_MEM_P_KEY->indata,"s")) {
 			k_send_message(PROCA_ID,env);
-		} else {
+		} else {*/
 			env->msg_type=CONSOLE_INPUT;
 			k_send_message(env->sender_pid ,env);
-		}
+		//}
 
 		ps("Keyboard sent message");
 

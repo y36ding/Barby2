@@ -18,6 +18,7 @@ void cci_print(const char* print)
             {
             	release_message_env(env);
             }
+
         }
 	}
 }
@@ -51,24 +52,22 @@ void cci_process()
 		//Obtained keyboard input
 		char command [MAXCHAR];
 		char first_letter[2];
-		sprintf(command, "%s", cci_env->data);
-		first_letter[0] = command[0];
-		first_letter[1] = '\0';
+		int offset = sprintf(command,  cci_env->data);
+
 		// Send a message to process A. This only happens once. If it has already been sent, then prompt user.
 		if (strcmp(command, "s") == 0)
 		{
-			/*if (a_env != NULL)
+			if (a_env != NULL)
 			{
-				int ret = send_message(PROCA_ID, a_env);
-				if (ret != SUCCESS)
+				retVal = send_message(PROCA_ID, a_env);
+				if (retVal != SUCCESS)
 						cci_print("Failed to send message envlope and start A\n");
 				a_env = NULL;
 			}
 			else
 			{
 				cci_print("A has already started.");
-			}*/
-			cci_print("Command 's' needs Chinmay's code\n");
+			}
 		}
 		else if(strcmp(command, "ps") == 0)
 		{
@@ -80,7 +79,7 @@ void cci_process()
 		}
 		else if(strcmp(command, "cd") == 0)
 		{
-			cci_print("We don't support this command yet");
+			displayClock(1);
 		}
 		else if(strcmp(command, "ct") == 0)
 		{

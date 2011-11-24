@@ -32,6 +32,4 @@ int k_change_priority(int new_priority, int target_pid);
 int k_log_event(TraceBuffer* trace_buf, MsgEnv *env);
 int k_get_trace_buffer(MsgEnv* env);
 
-void k_print_buffer(MsgEnv* env);
-
 #endif
