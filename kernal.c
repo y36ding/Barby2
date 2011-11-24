@@ -187,7 +187,7 @@ void k_process_switch(ProcessState next_state)
 	{
 		//printf("Inside Process Switch. Current Process is %s\n", CURRENT_PROCESS->name);
 		ps("Inside Process Switch. Current process is:");
-		pp(CURRENT_PROCESS);
+		//pp(CURRENT_PROCESS);
 
 		CURRENT_PROCESS->state = next_state;
 		pcb* old_process = CURRENT_PROCESS;
@@ -196,11 +196,11 @@ void k_process_switch(ProcessState next_state)
 
 		//printf("Next Process is %s\n", next_process->name);
 		ps("Next process process is:");
-		pp(next_process);
+		//pp(next_process);
 
 		k_context_switch(old_process->buf, CURRENT_PROCESS->buf);
 	}
-	ps("Back in process switch after context");
+	//ps("Back in process switch after context");
 }
 
 void k_context_switch(jmp_buf prev, jmp_buf next)
