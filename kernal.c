@@ -224,25 +224,13 @@ int k_release_processor()
 
 int k_request_process_status(MsgEnv *env)
 {
-	//fflush(stdout);
-
-	char status[500];
-    char header[80];
     int offset = sprintf(env->data, "Process Name\t\tProcess ID\tPriority\tState\n");
-  // printf("len 1 %i\n", a);
-	fflush(stdout);
-    //strcat(status, header);
 	int i;
-	int b = 0;
 	for (i = 0; i < PROCESS_COUNT; ++i)
 	{
-		char proc_status[100];
 		offset += sprintf(env->data+offset, "%s\t\t%i\t\t%i\t\t%s\n", PCB_LIST[i]->name, PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
-		//printf("len 2 %i\n", b);
-		//strcat(status, proc_status);
 	}
 	printf("The request offset is %i\n", offset);
-	//printf("len 3 %i\n", c);
 	return SUCCESS;
 }
 
@@ -309,20 +297,24 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     int offset = sprintf(msg_env->data, "Send Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
 
     i = SEND_TRACE_BUF.head;
+    int count = 1;
     do
     {
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
     	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	i = (i+1)%TRACE_LOG_SIZE;
+    	count++;
     }while(i!=send_tail);
 
    offset += sprintf(msg_env->data+offset, "\nReceive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
     i =  RECEIVE_TRACE_BUF.head;
+    count = 1;
     do
     {
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
     	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	i = (i+1)%TRACE_LOG_SIZE;
+    	count++;
     }while(i!= receive_tail);
 
     printf("The offset is %i\n", offset);
