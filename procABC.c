@@ -83,9 +83,8 @@ void procC()
 			if( (atoi(msg_env->data)) % 20 == 0)
 			//if( (msg_env->time_delay) % 20 == 0)
 			{
-				msg_env->time_delay = 100;
 				char tempData[20] = "\nProcess C\0";
-				memcpy(msg_env->data,tempData,strlen(tempData));
+				memcpy(msg_env->data,tempData,strlen(tempData)+1);
 				send_console_chars(msg_env);
 
 				//wait for output confirmation with 'DISPLAY_ACK' msg type
@@ -94,7 +93,21 @@ void procC()
 					msg_env = (MsgEnv*)receive_message();
 					if (msg_env->msg_type == DISPLAY_ACK)
 					{
-						ps("PROCESS C releasing envelope");
+						if(request_delay(3, WAKEUP10, msg_env)!= SUCCESS)
+						{
+							printf("requesting delay for Process C went wrong");
+						}
+						while(1){
+							msg_env = receive_message();
+							if(msg_env->msg_type==WAKEUP10)
+							{
+								break;
+							}else if(msg_env->msg_type == COUNT_REPORT){
+								MsgEnvQ_enqueue(msgQueue, msg_env);
+							}else{
+								release_message_env(msg_env);
+							}
+						}
 						break;
 					}else if(msg_env->msg_type == COUNT_REPORT){
 						//enqueue the msg env onto local msg queue if it originated from proc_A
