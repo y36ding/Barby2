@@ -5,7 +5,7 @@
 void crt_i_proc(int signum)
 {
 #if DEBUG
-	printf("Current process is: %s \n",CURRENT_PROCESS->name);
+	//printf("Current process is: %s \n",CURRENT_PROCESS->name);
 #endif
 	int error = k_pseudo_process_switch(CRT_I_PROCESS_ID);
 
@@ -27,7 +27,7 @@ void crt_i_proc(int signum)
 			ps("Got SIGUSR2");*/
 #endif
 
-			ps("SIGUSR2 received!\n");
+			//ps("SIGUSR2 received!\n");
 			MsgEnv* envTemp = NULL;
 			envTemp = (MsgEnv*)MsgEnvQ_dequeue(DISPLAYQ);
 			if (envTemp == NULL)
@@ -37,12 +37,12 @@ void crt_i_proc(int signum)
 			}
 			envTemp->msg_type = DISPLAY_ACK;
 			k_send_message(envTemp->sender_pid, envTemp);
-			ps("CRT returning envelope!");
+			//ps("CRT returning envelope!");
 			//ps("Display ACK sent by crt");
 			k_return_from_switch();
 #if DEBUG
-			printf("Current process is: %s \n",CURRENT_PROCESS->name);
-			printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
+			//printf("Current process is: %s \n",CURRENT_PROCESS->name);
+			//printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
 #endif
 			return;
 	}
@@ -55,8 +55,8 @@ void crt_i_proc(int signum)
 
 	strcpy(IN_MEM_P_CRT->outdata,env->data);
 #if DEBUG
-		printf("%s  %s\n",IN_MEM_P_CRT->outdata,env->data);
-		printf("The message data section holds \"%s\" \n",IN_MEM_P_CRT->outdata);
+		//printf("%s  %s\n",IN_MEM_P_CRT->outdata,env->data);
+		//printf("The message data section holds \"%s\" \n",IN_MEM_P_CRT->outdata);
 #endif
 
 	MsgEnvQ_enqueue(DISPLAYQ,env);
