@@ -18,6 +18,7 @@ void cci_print(const char* print)
             {
             	release_message_env(env);
             }
+
         }
 	}
 }
@@ -50,22 +51,23 @@ void cci_process()
 
 		//Obtained keyboard input
 		char command [MAXCHAR];
-		sprintf(command, "%s", cci_env->data);
+		char first_letter[2];
+		int offset = sprintf(command,  cci_env->data);
+
 		// Send a message to process A. This only happens once. If it has already been sent, then prompt user.
 		if (strcmp(command, "s") == 0)
 		{
-			/*if (a_env != NULL)
+			if (a_env != NULL)
 			{
-				int ret = send_message(PROCA_ID, a_env);
-				if (ret != SUCCESS)
+				retVal = send_message(PROCA_ID, a_env);
+				if (retVal != SUCCESS)
 						cci_print("Failed to send message envlope and start A\n");
 				a_env = NULL;
 			}
 			else
 			{
 				cci_print("A has already started.");
-			}*/
-			cci_print("Command 's' needs Chinmay's code\n");
+			}
 		}
 		else if(strcmp(command, "ps") == 0)
 		{
@@ -77,7 +79,7 @@ void cci_process()
 		}
 		else if(strcmp(command, "cd") == 0)
 		{
-			cci_print("We don't support this command yet");
+			displayClock(1);
 		}
 		else if(strcmp(command, "ct") == 0)
 		{
@@ -95,6 +97,34 @@ void cci_process()
 		else if(strcmp(command, "c") == 0)
 		{
 			cci_print("We don't support this command yet");
+		}
+		else if(strcmp(first_letter, "n") == 0)
+		{
+
+			int priority, pid;
+			// extract priority and pid from the command
+			if (sscanf(command, "%*s %i %i", &priority, &pid)!=2)
+			{
+				sprintf(formatted_msg, "Invalid format for command %s. It should be: n <priority> <process id>\n", first_letter);
+				cci_print(formatted_msg);
+			}
+			else
+			{
+				//retVal = change_priority(priortiy, pid);
+				sprintf(formatted_msg, "Priority: %i, Pid: %i\n", priority, pid);
+				cci_print(formatted_msg);
+				retVal = SUCCESS;
+				if (retVal == ILLEGAL_ARGUMENT)
+				{
+					sprintf(formatted_msg, "Invalid arguments. Ensure that the priority is between [0-3], and the process ID is a valid"
+							"process ID other than the NULL process ID\n");
+					cci_print(formatted_msg);
+				}
+				else if (retVal != SUCCESS)
+				{
+					cci_print("Priority of specified process could not be changed\n");
+				}
+			}
 		}
 		else if(strcmp(command, "t") == 0)
 		{

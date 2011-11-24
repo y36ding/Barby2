@@ -37,6 +37,9 @@ void procA();
 void procB();
 void procC();
 void clock_process();
+void cci_process();
+
+void displayClock(int);
 
 
 // Trace Buffers

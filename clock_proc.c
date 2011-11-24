@@ -7,7 +7,6 @@ MsgEnvQ *envQ;
 MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
 int checkBit, clockTime;
 
-
 void clock_process() {
 
 	envQ = MsgEnvQ_create();

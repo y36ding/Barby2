@@ -70,7 +70,7 @@ void procC()
 	MsgEnv *msg_env;
 	while(1)
 	{
-		if(MsgEnvQ_size(msgQueue) == 0)
+		while(MsgEnvQ_size(msgQueue) == 0)
 		{
 			msg_env = (MsgEnv*)receive_message();
 			MsgEnvQ_enqueue(msgQueue, msg_env);
@@ -83,12 +83,8 @@ void procC()
 			if( (atoi(msg_env->data)) % 20 == 0)
 			//if( (msg_env->time_delay) % 20 == 0)
 			{
-				printf("Sending message to CRT");
-				release_message_env(msg_env);
-
-				msg_env = (MsgEnv*)request_msg_env();
 				msg_env->time_delay = 100;
-				char tempData[20] = "Process C\0";
+				char tempData[20] = "\nProcess C\0";
 				memcpy(msg_env->data,tempData,strlen(tempData));
 				send_console_chars(msg_env);
 
@@ -96,32 +92,23 @@ void procC()
 				while(1)
 				{
 					msg_env = (MsgEnv*)receive_message();
-
 					if (msg_env->msg_type == DISPLAY_ACK)
 					{
 						ps("PROCESS C releasing envelope");
-						release_message_env(msg_env);
-
 						break;
 					}else if(msg_env->msg_type == COUNT_REPORT){
 						//enqueue the msg env onto local msg queue if it originated from proc_A
 						MsgEnvQ_enqueue(msgQueue, msg_env);
-					}else{
-						//shouldn't get here, useless msg env to proc_c
-						printf("MEMORY LEAK IN PROC C\n");
 					}
-
+					// random message. ignore
+					else
+						release_message_env(msg_env);
 				}
 
 			}
-			//printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
-			release_message_env(msg_env);
-			//printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
-
 		}
 
 		//deallocate message envelopes and release processor
-        release_message_env(msg_env);
         release_message_env(msg_env);
 
         if (MsgEnvQ_size(msgQueue) == 0) {

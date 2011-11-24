@@ -16,11 +16,12 @@ pcb* pid_to_pcb(int pid)
 
 MsgEnv* k_request_msg_env()
 {
-	// the real code will keep on trying to search free env
-	// queue for envelope and get blocked otherwise
-	if (MsgEnvQ_size(FREE_ENV_QUEUE) == 0) {
-		//ps("NO FREE ENVELOPES");
-		return NULL;
+	while (MsgEnvQ_size(FREE_ENV_QUEUE) == 0)
+	{
+		if(CURRENT_PROCESS->is_i_process)
+			return NULL;
+		proc_q_enqueue(BLOCKED_QUEUE, CURRENT_PROCESS);
+		k_process_switch(BLOCKED_ON_ENV_REQUEST);
 	}
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
@@ -32,59 +33,29 @@ int k_release_message_env(MsgEnv* env)
 	if (env == NULL)
 		return NULL_ARGUMENT;
 
-	//env->next=NULL;
-	//env->data='\0';
-	//env->dest_pid=0;
-	//env->time_delay=0;
-	//env->msg_type=NONE;
-	//env->sender_pid=0;
-
 	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+	if (proc_q_is_empty(BLOCKED_QUEUE) != TRUE)
+	{
+		pcb* blocked_process = proc_q_dequeue(BLOCKED_QUEUE);
+		blocked_process->state = READY;
+		proc_pq_enqueue(RDY_PROC_QUEUE, blocked_process);
+	}
 
-#if DEBUG
-	//printf("MSG ENV RELEASED!\n");
-#endif
-	// check processes blocked for allocate envelope later
 	return SUCCESS;
 }
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 {
-
-		ps("In send message");
-
-
-	/*
+	ps("In send message");
 	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
-	if (!dest_pcb || !msg_envelope) {
-		return NULL_ARGUMENT;
-	}
-
-	msg_envelope->sender_pid = CURRENT_PROCESS->pid;
-	msg_envelope->dest_pid = dest_process_id;
-
-	if (DEBUG==1) {
-		fflush(stdout);
-		printf("Dest pid is %i\n",dest_pcb->pid);
-		fflush(stdout);
-	}
-
-	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
-	if (DEBUG==1){
-		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
-	}
-	k_log_event(&SEND_TRACE_BUF, msg_envelope);
-	return SUCCESS;*/
-
-	//full implementation version
-	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 	if (!dest_pcb || !msg_envelope) {
 		return NULL_ARGUMENT;
 	}
 	msg_envelope->sender_pid = CURRENT_PROCESS->pid;
 	msg_envelope->dest_pid = dest_process_id;
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
+
 #if DEBUG
 	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
@@ -94,21 +65,25 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 		dest_pcb->state = READY;
 		proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
 	}
-	if (DEBUG==1){
+
+#if DEBUG
 		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
-	}
+#endif
+
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
 	return SUCCESS;
 }
 
 MsgEnv* k_receive_message()
 {
-	//printf("===CURRENT PROCESS = %i\n",CURRENT_PROCESS->pid);
 	while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
 	{
-		if (CURRENT_PROCESS->is_i_process == TRUE ){
+		if (CURRENT_PROCESS->is_i_process == TRUE )
+		{
 			return NULL;
-		}else{
+		}
+		else
+		{
 #if DEBUG //leave my code in for merge conflict here
 			printf("Process %s is getting blocked on receive\n",CURRENT_PROCESS->name);
 #endif
@@ -116,6 +91,7 @@ MsgEnv* k_receive_message()
 		}
 	}
 
+	// Message available
 	MsgEnv *ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
 	k_log_event(&RECEIVE_TRACE_BUF, ret);
 	return ret;
@@ -207,19 +183,22 @@ int k_request_delay(int delay, int wakeup_code, MsgEnv *msg_env)
 void k_process_switch(ProcessState next_state)
 {
 	pcb* next_process = (pcb*)proc_pq_dequeue(RDY_PROC_QUEUE);
-	//pp(next_process);
-	// Note this is not checking for null process. It is just for checking the dequeue
-	// was successful
 	if (next_process != NULL)
 	{
-		//ps("Inside Process Switch. Current process is:");
+		//printf("Inside Process Switch. Current Process is %s\n", CURRENT_PROCESS->name);
+		ps("Inside Process Switch. Current process is:");
 		//pp(CURRENT_PROCESS);
 
 		CURRENT_PROCESS->state = next_state;
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
 		CURRENT_PROCESS->state = EXECUTING;
-		k_context_switch((old_process->buf), (CURRENT_PROCESS->buf));
+
+		//printf("Next Process is %s\n", next_process->name);
+		ps("Next process process is:");
+		//pp(next_process);
+
+		k_context_switch(old_process->buf, CURRENT_PROCESS->buf);
 	}
 	//ps("Back in process switch after context");
 }
@@ -227,46 +206,31 @@ void k_process_switch(ProcessState next_state)
 void k_context_switch(jmp_buf prev, jmp_buf next)
 {
 	int val = setjmp(prev);
-	//ps("got here");
 	if (val == 0)
 	{
-		//ps("got here2");
 		longjmp(next, 1);
 	}
-	//pp(CURRENT_PROCESS);
-	//printf("%p",CURRENT_PROCESS->buf);
-	//ps("Back in context switch after longjump");
 }
 
 int k_release_processor()
 {
-	//pp(CURRENT_PROCESS);
-	proc_pq_enqueue(RDY_PROC_QUEUE,CURRENT_PROCESS);
-	k_process_switch(READY);
-	//ps("in k release processor before returning");
-	return SUCCESS;
+	int retVal = proc_pq_enqueue(RDY_PROC_QUEUE, CURRENT_PROCESS);
+	if (retVal == SUCCESS)
+	{
+		k_process_switch(READY);
+	}
+	return retVal;
 }
 
 int k_request_process_status(MsgEnv *env)
 {
-	char status[500];
-    char header[80];
-    sprintf(header, "Process ID\tPriority\tState\n");
-    strcat(status, header);
+    int offset = sprintf(env->data, "Process Name\t\tProcess ID\tPriority\tState\n");
 	int i;
 	for (i = 0; i < PROCESS_COUNT; ++i)
 	{
-		char proc_status[100];
-		sprintf(proc_status, "%i\t\t%i\t\t%s\n", PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
-		strcat(status, proc_status);
-		/**status = PCB_LIST[i]->pid;
-		status ++;
-		*status = PCB_LIST[i]->state;
-		status++;
-		*status = PCB_LIST[i]->priority;
-		status++;*/
+		offset += sprintf(env->data+offset, "%s\t\t%i\t\t%i\t\t%s\n", PCB_LIST[i]->name, PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
 	}
-	sprintf(env->data, status);
+	printf("The request offset is %i\n", offset);
 	return SUCCESS;
 }
 
@@ -278,7 +242,7 @@ int k_terminate()
 
 int k_change_priority(int target_priority, int target_pid)
 {
-	if (target_priority >= 3 || target_priority < 0)
+	if (target_priority > NUM_PRIORITIES-1 || target_priority < 0)
 			return ILLEGAL_ARGUMENT;
 
 	pcb* target_pcb = pid_to_pcb(target_pid);
@@ -288,7 +252,7 @@ int k_change_priority(int target_priority, int target_pid)
 	// if on a ready queue, take if off, change priority, and put it back on
     if(target_pcb->state == READY)
     {
-        proc_pq_dequeue(RDY_PROC_QUEUE);
+        proc_pq_remove(RDY_PROC_QUEUE, target_pcb);
         target_pcb->priority = target_priority;
         proc_pq_enqueue(RDY_PROC_QUEUE, target_pcb);
     }
@@ -329,73 +293,30 @@ int k_get_trace_buffer( MsgEnv *msg_env )
 
     int send_tail = get_trace_tail(&SEND_TRACE_BUF);
     int receive_tail = get_trace_tail(&RECEIVE_TRACE_BUF);
-    int send_size = SEND_TRACE_BUF.count;
-    int receive_size = RECEIVE_TRACE_BUF.count;
     int i;
+    int offset = sprintf(msg_env->data, "Send Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
 
-    // Assign the memory locations which will be written to in the message envelope
-   /* int* buff_size = (int*)msg_env->data;
-    *buff_size = send_size;
-    buff_size++;
-    *buff_size = receive_size;
-    buff_size++;*/
-
-    char send_header[80];
-    sprintf(send_header, "Send Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
-    strcat(msg_env->data, send_header);
-    TraceLog* log_stack =  (TraceLog*)msg_env->data;
     i = SEND_TRACE_BUF.head;
     int count = 1;
-   do
+    do
     {
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
-    	char trace[100];
-
-    	sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
-    	strcat(msg_env->data, trace);
-    	break;
-    	/*log_stack->dest_pid = log->dest_pid;
-    	log_stack->msg_type = log->msg_type;
-    	log_stack->sender_pid = log->sender_pid;
-    	log_stack->time_stamp = log->time_stamp;
-    	log_stack++;*/
+    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	i = (i+1)%TRACE_LOG_SIZE;
+    	count++;
     }while(i!=send_tail);
 
-   char receive_header[80];
-   sprintf(receive_header, "Receive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
-   strcat(msg_env->data, receive_header);
+   offset += sprintf(msg_env->data+offset, "\nReceive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
     i =  RECEIVE_TRACE_BUF.head;
+    count = 1;
     do
     {
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
-    	char trace[100];
-
-    	//sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
-    	//strcat(msg_env->data, trace);
-    	/*log_stack->dest_pid = log->dest_pid;
-    	log_stack->msg_type = log->msg_type;
-    	log_stack->sender_pid = log->sender_pid;
-    	log_stack->time_stamp = log->time_stamp;*/
-    	log_stack++;
+    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	i = (i+1)%TRACE_LOG_SIZE;
+    	count++;
     }while(i!= receive_tail);
 
+    printf("The offset is %i\n", offset);
     return SUCCESS;
-}
-
-void k_print_buffer(MsgEnv *env)
-{
-	if (env && env->data)
-	{
-		// The location of the data should be: integer for send buffer count size, then count number of TraceLogs for send_buffer
-		// integer for receive_buffer count size, then count number of TraceLogs for receive buffer
-		//int send_size = *((int*)env->data);
-		//TraceLog* log_stack =  sizeof(send_size);
-
-	}
-	else
-	{
-		ps("Print buffer failed due to NULL Arguments!");
-	}
 }

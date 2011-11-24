@@ -111,7 +111,7 @@ char* msg_type(int i)
 	case WAKEUP10:
 		return "WAKEUP10";
 	default:
-		return "No Type";
+		return "NO TYPE";
 	}
 }
 
@@ -132,6 +132,6 @@ char* state_type(int i)
 	case INTERRUPTED:
 		return "INTERRUPTED";
 	default:
-		return "No Type";
+		return "NO TYPE";
 	}
 }
