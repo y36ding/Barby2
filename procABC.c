@@ -12,6 +12,14 @@ void procA ()
 
 	int num_count = 0;
 
+	MsgEnv *env = (MsgEnv*)request_msg_env();
+	ps("Timer for 5 secs");
+	request_delay(5,WAKEUP10,env);
+	env = (MsgEnv*)receive_message();
+	while(env->msg_type!=WAKEUP10) {
+		env = (MsgEnv*) receive_message();
+	}
+
 	//loop forever
 	while(1)
 	{
@@ -73,6 +81,7 @@ void procC()
 			if( (atoi(msg_env->data)) % 20 == 0)
 			//if( (msg_env->time_delay) % 20 == 0)
 			{
+				printf("Sending message to CRT");
 				release_message_env(msg_env);
 
 				msg_env = (MsgEnv*)request_msg_env();
