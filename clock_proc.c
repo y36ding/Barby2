@@ -36,16 +36,19 @@ void clock_process() {
 			clockTime++;//(int32_t)((clock_get_system_time()-ref)/10+offset)%SEC_IN_HR;
 			if (clockDisplayRequest) {
 				displayEnv = (MsgEnv*) request_msg_env();
-				int hours = clockTime%60%60;
+				/*int hours = clockTime%3600;
 				int mins = (clockTime - hours*60*60)%60;
-				int secs = (clockTime - hours*60*60 - mins*60)%60;
-				sprintf(displayEnv->data,"%02i:%02i:%02i",hours,mins,secs);
+				int secs = (clockTime - hours*60*60 - mins*60)%60;*/
+				int hours = clockTime/3600;
+				int mins = (clockTime%3600)/60;
+				int secs = clockTime%60;
+
+				sprintf(displayEnv->data,"\n%02i:%02i:%02i",hours,mins,secs);
 				send_console_chars(displayEnv);
 			}
 		}
 	}
 	release_processor();
-
 }
 
 
@@ -87,9 +90,8 @@ int setClock (char* rawTimeString)
 //setter function for wallClock display status bit
 void displayClock (int newStatus)
 {
-	if (newStatus==0 || newStatus==1) {
+	if (newStatus==0 || newStatus==1)
+	{
 		clockDisplayRequest = newStatus;
-	} else {
-		clockDisplayRequest = 0;
 	}
 }

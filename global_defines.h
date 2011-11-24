@@ -19,10 +19,10 @@ typedef int bool_t;
 #define NULL_PROCESS_ID		   7
 #define TEST_PROCESS_ID		   8
 #define CLOCK_PROCESS_ID	   9
-#define CCI_PROCESS_ID 10
+#define CCI_PROCESS_ID 		   10
 
 // RTX Constants
-#define MSG_ENV_SIZE 		   200
+#define MSG_ENV_SIZE 		   1000
 #define MSG_ENV_COUNT 		   50
 #define NUM_PRIORITY_LEVEL 	   4
 #define STACK_SIZE             4*4096
