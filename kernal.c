@@ -207,15 +207,20 @@ int k_release_processor()
 
 int k_request_process_status(MsgEnv *env)
 {
+	fflush(stdout);
+	//printf("HELLO\n");
+	fflush(stdout);
 	char status[500];
     char header[80];
-    sprintf(header, "Process ID\tPriority\tState\n");
+   int a = sprintf(header, "%s", "Process ID\tPriority\tState\n");
+  // printf("len 1 %i\n", a);
     strcat(status, header);
 	int i;
 	for (i = 0; i < PROCESS_COUNT; ++i)
 	{
 		char proc_status[100];
-		sprintf(proc_status, "%i\t\t%i\t\t%s\n", PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
+		int b = sprintf(proc_status, "%i\t\t%i\t\t%s\n", PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
+		//printf("len 2 %i\n", b);
 		strcat(status, proc_status);
 		/**status = PCB_LIST[i]->pid;
 		status ++;
@@ -224,7 +229,8 @@ int k_request_process_status(MsgEnv *env)
 		*status = PCB_LIST[i]->priority;
 		status++;*/
 	}
-	sprintf(env->data, status);
+	int c = sprintf(env->data, "%s", status);
+	//printf("len 3 %i\n", c);
 	return SUCCESS;
 }
 
@@ -309,7 +315,7 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
     	char trace[100];
 
-    	sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	sprintf(trace, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	strcat(msg_env->data, trace);
     	break;
     	/*log_stack->dest_pid = log->dest_pid;
@@ -321,7 +327,7 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     }while(i!=send_tail);
 
    char receive_header[80];
-   sprintf(receive_header, "Receive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
+   sprintf(receive_header, "\nReceive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
    strcat(msg_env->data, receive_header);
     i =  RECEIVE_TRACE_BUF.head;
     do
@@ -329,8 +335,9 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
     	char trace[100];
 
-    	//sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
-    	//strcat(msg_env->data, trace);
+    	sprintf(trace, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	strcat(msg_env->data, trace);
+    	break;
     	/*log_stack->dest_pid = log->dest_pid;
     	log_stack->msg_type = log->msg_type;
     	log_stack->sender_pid = log->sender_pid;
