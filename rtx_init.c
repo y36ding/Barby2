@@ -66,6 +66,7 @@ int init_all_lists() {
 		MSG_LIST[i]->msg_type = NONE;
 		MSG_LIST[i]->next = NULL;
 		MSG_LIST[i]->data = (char*) malloc(sizeof(char) * MSG_ENV_SIZE);
+		MSG_LIST[i]->dest_pid = -1;
 		if (MSG_LIST[i]->data == NULL) {
 			init_status = OTHER_ERROR;
 			break;

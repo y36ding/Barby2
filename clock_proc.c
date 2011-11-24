@@ -1,13 +1,16 @@
 #include "rtx.h"
 #include "userAPI.h"
+#include "cci.h"
 
-int hour, min, sec;
+
 int clockDisplayRequest; //0 when not displaying, 1 when displaying
 MsgEnvQ *envQ;
-MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
-int checkBit, clockTime;
+int hour, min, sec, clockTime;;
 
 void clock_process() {
+
+	MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
+	int checkBit;
 
 	envQ = MsgEnvQ_create();
 	clockDisplayRequest = 0;

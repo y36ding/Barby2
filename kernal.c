@@ -25,6 +25,7 @@ MsgEnv* k_request_msg_env()
 	}
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
+	free_env->sender_pid = CURRENT_PROCESS->pid; // for debugging purposes in order to track envelopes
 	return free_env;
 }
 
@@ -34,6 +35,7 @@ int k_release_message_env(MsgEnv* env)
 		return NULL_ARGUMENT;
 
 	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+	env->sender_pid = -1; // debugging purposes. -1 means no process has this envelope
 	if (proc_q_is_empty(BLOCKED_QUEUE) != TRUE)
 	{
 		pcb* blocked_process = proc_q_dequeue(BLOCKED_QUEUE);
@@ -46,7 +48,7 @@ int k_release_message_env(MsgEnv* env)
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 {
-	ps("In send message");
+	//ps("In send message");
 	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
 	if (!dest_pcb || !msg_envelope) {
@@ -57,7 +59,7 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 
 #if DEBUG
-	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+	printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
 	if(dest_pcb->state == BLOCKED_ON_RCV)
@@ -67,7 +69,7 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	}
 
 #if DEBUG
-		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+		//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
@@ -186,7 +188,7 @@ void k_process_switch(ProcessState next_state)
 	if (next_process != NULL)
 	{
 		//printf("Inside Process Switch. Current Process is %s\n", CURRENT_PROCESS->name);
-		ps("Inside Process Switch. Current process is:");
+		//ps("Inside Process Switch. Current process is:");
 		//pp(CURRENT_PROCESS);
 
 		CURRENT_PROCESS->state = next_state;
@@ -195,7 +197,7 @@ void k_process_switch(ProcessState next_state)
 		CURRENT_PROCESS->state = EXECUTING;
 
 		//printf("Next Process is %s\n", next_process->name);
-		ps("Next process process is:");
+		//ps("Next process process is:");
 		//pp(next_process);
 
 		k_context_switch(old_process->buf, CURRENT_PROCESS->buf);
@@ -230,6 +232,7 @@ int k_request_process_status(MsgEnv *env)
 	{
 		offset += sprintf(env->data+offset, "%s\t\t%i\t\t%i\t\t%s\n", PCB_LIST[i]->name, PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
 	}
+	sprintf(env->data+offset, "\n");
 	return SUCCESS;
 }
 
@@ -315,5 +318,6 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!= receive_tail);
+    sprintf(msg_env->data+offset, "\n");
     return SUCCESS;
 }
