@@ -25,6 +25,7 @@ MsgEnv* k_request_msg_env()
 	}
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
+	free_env->sender_pid = CURRENT_PROCESS->pid; // for debugging purposes in order to track envelopes
 	return free_env;
 }
 
@@ -57,7 +58,7 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	msg_envelope->dest_pid = dest_process_id;
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 
-#if 1
+#if DEBUG
 	printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
@@ -231,6 +232,7 @@ int k_request_process_status(MsgEnv *env)
 	{
 		offset += sprintf(env->data+offset, "%s\t\t%i\t\t%i\t\t%s\n", PCB_LIST[i]->name, PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
 	}
+	sprintf(env->data+offset, "\n");
 	return SUCCESS;
 }
 
@@ -316,5 +318,6 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!= receive_tail);
+    sprintf(msg_env->data+offset, "\n");
     return SUCCESS;
 }
