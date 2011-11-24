@@ -35,6 +35,7 @@ void test_process();
 void procA();
 void procB();
 void procC();
+void cci_process();
 
 // Trace Buffers
 extern TraceBuffer SEND_TRACE_BUF;
@@ -52,6 +53,9 @@ extern proc_queue* BLOCKED_QUEUE;
 extern MsgEnvQ* DISPLAYQ;
 extern proc_pq* RDY_PROC_QUEUE;
 extern MsgEnv * TIMEOUT_Q; // no need to allocate memory for this. It will just be assigned pointers to envelopes. Not a real queue.
+
+// CCI envelope
+extern MsgEnv* CCI_DISPLAY_ENV;
 
 // Keyboard/CRT Unix Process Related
 extern inputbuf * IN_MEM_P_KEY;	// pointer to structure that is the shared memory

@@ -114,3 +114,24 @@ char* msg_type(int i)
 		return "No Type";
 	}
 }
+
+char* state_type(int i)
+{
+	switch(i)
+	{
+	case READY:
+		return "READY\n";
+	case EXECUTING:
+		return "EXECUTING\n";
+	case BLOCKED_ON_ENV_REQUEST:
+		return "BLOCKED_ON_ENV_REQUEST\n";
+	case BLOCKED_ON_RCV:
+		return "BLOCKED_ON_RCV\n";
+	case NEVER_BLK_RCV:
+		return "NEVER_BLK_RCV\n";
+	case INTERRUPTED:
+		return "INTERRUPTED\n";
+	default:
+		return "No Type";
+	}
+}

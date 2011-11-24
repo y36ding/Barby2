@@ -93,11 +93,8 @@ void kbd_i_proc(int signum)
 			env->data[0] = '\0';
 		}
 
-		if (!strcmp(IN_MEM_P_KEY->indata,"t")) {
-			die(SIGINT);
-		}
-
 		// Send message back to process that called us
+		env->msg_type = CONSOLE_INPUT;
 		k_send_message(env->sender_pid ,env);
 
 		//ps("Keyboard sent message");

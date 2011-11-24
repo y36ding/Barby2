@@ -89,9 +89,6 @@ int k_send_console_chars(MsgEnv *message_envelope)
 {
 	if (!message_envelope)
 		return NULL_ARGUMENT;
-
-
-	message_envelope->msg_type = DISPLAY_ACK;
 	int retVal = k_send_message(CRT_I_PROCESS_ID, message_envelope);
 	crt_i_proc(0);
 	return retVal;
@@ -101,16 +98,7 @@ int k_get_console_chars(MsgEnv *message_envelope)
 {
 	if (!message_envelope)
 		return NULL_ARGUMENT;
-	message_envelope->msg_type = CONSOLE_INPUT;
 	int retVal = k_send_message( KB_I_PROCESS_ID, message_envelope);
-
-	//CURRENT_PROCESS = pid_to_pcb(KB_I_PROCESS_ID);
-	ps("invoking kbd");
-	//kbd_i_proc(0);
-	if (DEBUG==1) {
-		printf("keyboard process returned to get-console-chars\n");
-	}
-
 	return retVal;
 }
 
@@ -219,17 +207,24 @@ int k_release_processor()
 
 int k_request_process_status(MsgEnv *env)
 {
-	char* status = (char*)env->data;
+	char status[500];
+    char header[80];
+    sprintf(header, "Process ID\t\tState\t\tPriority\n");
+    strcat(status, header);
 	int i;
 	for (i = 0; i < PROCESS_COUNT; ++i)
 	{
-		*status = PCB_LIST[i]->pid;
+		char proc_status[100];
+		sprintf(proc_status, "%i\t\t%s\t\t%i\n", PCB_LIST[i]->pid, state_type(PCB_LIST[i]->state), PCB_LIST[i]->priority);
+		strcat(status, proc_status);
+		/**status = PCB_LIST[i]->pid;
 		status ++;
 		*status = PCB_LIST[i]->state;
 		status++;
 		*status = PCB_LIST[i]->priority;
-		status++;
+		status++;*/
 	}
+	sprintf(env->data, status);
 	return SUCCESS;
 }
 

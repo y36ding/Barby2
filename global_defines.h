@@ -15,6 +15,7 @@ typedef int bool_t;
 #define PROCB_ID			   5
 #define PROCC_ID			   6
 #define TEST_PROCESS_ID 7
+#define CCI_PROCESS_ID 8
 
 
 // RTX Constants
@@ -23,7 +24,7 @@ typedef int bool_t;
 #define NUM_PRIORITY_LEVEL 4
 #define STACK_SIZE             4096
 #define STK_OFFSET            16
-#define PROCESS_COUNT 8
+#define PROCESS_COUNT 9
 #define NUM_PRIORITIES 4
 
 // error codes

@@ -26,7 +26,7 @@ void processP() {
 	ps("ProcessP Started 1");
 	// Test Trace Buffer
 	int i;
-	/*printf("Free queue size: %i\n", MsgEnvQ_size(FREE_ENV_QUEUE));
+	printf("Free queue size: %i\n", MsgEnvQ_size(FREE_ENV_QUEUE));
 	for (i=0;i<70;++i)
 	{
 		MsgEnv* env = request_msg_env();
@@ -37,7 +37,10 @@ void processP() {
 		printf("%s\n",env2->data);
 		release_message_env(env2);
 	}
-	printf("Free queue size: %i\n", MsgEnvQ_size(FREE_ENV_QUEUE));*/
+	printf("Free queue size: %i\n", MsgEnvQ_size(FREE_ENV_QUEUE));
+	MsgEnv* env1 = request_msg_env();
+	k_get_trace_buffer(env1);
+
 
 	/*MsgEnv* temp = request_msg_env();
 	send_console_chars(temp);*/

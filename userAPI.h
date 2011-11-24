@@ -23,4 +23,5 @@ int get_trace_buffer(MsgEnv *env);
 int request_delay(int delay, int wakeup_code, MsgEnv *msg_env);
 
 int release_processor();
+
 #endif
