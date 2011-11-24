@@ -39,6 +39,7 @@ iRTX: debug.o cleanup.o globals.o rtx_init.o iRTX.o userAPI.o MsgEnvQueue.o kern
 	@echo linking iRTX.o file
 	$(LINK) $(LNFLAGS) debug.o cleanup.o globals.o rtx_init.o iRTX.o userAPI.o MsgEnvQueue.o iProcs.o kernal.o timerQ.o procPQ.o processQ.o procABC.o clock_proc.o debug_stack.o -o iRTX
 
+
 crt:crt.o
 	@echo linking crt.o file
 	$(LINK) $(LNFLAGS) crt.o -o crt
@@ -49,6 +50,10 @@ keyboard:keyboard.o
 
 
 #compile the source code into object files
+cci.o: cci.c
+	@echo building cci.c
+	$(CC) $(CFLAGS) cci.c
+
 debug_stack.o: debug_stack.c
 	@echo building debug_stack.c
 	$(CC) $(CFLAGS) debug_stack.c

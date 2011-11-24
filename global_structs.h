@@ -6,6 +6,9 @@
 
 typedef void (*pc)();
 
+char* msg_type(int i);
+char* state_type(int i);
+
 typedef enum msg_type {
     NONE, CONSOLE_INPUT, DISPLAY_ACK, COUNT_REPORT, WAKEUP10
 }MsgType;
@@ -21,7 +24,7 @@ typedef struct MsgEnv {
 
 typedef enum process_states {
     READY, EXECUTING, BLOCKED_ON_ENV_REQUEST, BLOCKED_ON_RCV, NEVER_BLK_RCV,
-    SINTERRUPTED
+    INTERRUPTED
 } ProcessState;
 
 typedef struct msg_env_queue {

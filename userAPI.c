@@ -97,3 +97,41 @@ int request_delay(int delay, int wakeup_code, MsgEnv *msg_env)
 	atomic(OFF);
 	return ret;
 }
+
+char* msg_type(int i)
+{
+	switch(i)
+	{
+	case CONSOLE_INPUT:
+		return "CONSOLE INPUT";
+	case DISPLAY_ACK:
+		return "DISPLAY_ACK";
+	case COUNT_REPORT:
+		return "COUNT_REPORT";
+	case WAKEUP10:
+		return "WAKEUP10";
+	default:
+		return "No Type";
+	}
+}
+
+char* state_type(int i)
+{
+	switch(i)
+	{
+	case READY:
+		return "READY";
+	case EXECUTING:
+		return "EXECUTING";
+	case BLOCKED_ON_ENV_REQUEST:
+		return "BLOCKED_ON_ENV_REQUEST";
+	case BLOCKED_ON_RCV:
+		return "BLOCKED_ON_RCV";
+	case NEVER_BLK_RCV:
+		return "NEVER_BLK_RCV";
+	case INTERRUPTED:
+		return "INTERRUPTED";
+	default:
+		return "No Type";
+	}
+}

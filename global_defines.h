@@ -9,8 +9,8 @@ typedef int bool_t;
 // Process IDs
 #define KB_I_PROCESS_ID        0
 #define CRT_I_PROCESS_ID       1
-#define P_PROCESS_ID 		   3
 #define TIMER_I_PROCESS_ID	   2
+#define P_PROCESS_ID 		   3
 #define PROCA_ID			   4
 #define PROCB_ID			   5
 #define PROCC_ID			   6
@@ -37,6 +37,6 @@ typedef int bool_t;
 #define ON TRUE
 #define OFF FALSE
 
-#define DEBUG 1
+#define DEBUG 0
 
 #endif

@@ -2,6 +2,7 @@
 #include "kernal.h"
 #include "iProcs.h"
 #include "processQ.h"
+#include "procPQ.h"
 
 pcb* pid_to_pcb(int pid)
 {
@@ -24,21 +25,6 @@ MsgEnv* k_request_msg_env()
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
 	return free_env;
-
-	//full implementation version
-	/*while(MsgEnvQ_is_empty(FREE_ENV_QUEUE))
-	{
-		if(CURRENT_PROCESS->is_i_process == TRUE)
-		{
-			return NULL;
-		}else{
-			proc_q_enqueue(BLOCKED_QUEUE, CURRENT_PROCESS);
-			k_process_switch(BLOCKED_ON_ENV_REQUEST);
-		}
-	}
-
-	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
-	return free_env;*/
 }
 
 int k_release_message_env(MsgEnv* env)
@@ -60,24 +46,16 @@ int k_release_message_env(MsgEnv* env)
 #endif
 	// check processes blocked for allocate envelope later
 	return SUCCESS;
-
-	/*if (env == NULL)
-		return NULL_ARGUMENT;
-	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
-	pcb*  blocked_proc = proc_q_dequeue(BLOCKED_QUEUE);
-	if (blocked_proc !=NULL)
-	{
-		block_proc->state = READY;
-		proc_pq_enqueue(RDY_PROC_QUEUE);
-	}
-	return SUCCESS;*/
 }
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 {
-	//ps("In send message");
 
-	/*pcb* dest_pcb =  pid_to_pcb(dest_process_id);
+		ps("In send message");
+
+
+	/*
+	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
 	if (!dest_pcb || !msg_envelope) {
 		return NULL_ARGUMENT;
@@ -110,11 +88,14 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 #if DEBUG
 	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
+
 	if(dest_pcb->state == BLOCKED_ON_RCV)
 	{
 		dest_pcb->state = READY;
 		proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
-		//pp(dest_pcb);
+	}
+	if (DEBUG==1){
+		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 	}
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
 	return SUCCESS;
@@ -122,41 +103,20 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 
 MsgEnv* k_receive_message()
 {
-	/*if (DEBUG==1) {
-		fflush(stdout);
-		printf("Current PCB msgQ size is %i for PID %i\n", MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue), CURRENT_PROCESS->pid );
-	}*/
-	/*
-	MsgEnv* ret = NULL;
-
 	//printf("===CURRENT PROCESS = %i\n",CURRENT_PROCESS->pid);
-
-	if (MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) > 0){
-		ret = (MsgEnv*)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
-		k_log_event(&RECEIVE_TRACE_BUF, ret);
-	}
-	else
-	{
-		if (CURRENT_PROCESS->is_i_process == TRUE || CURRENT_PROCESS->state == NEVER_BLK_RCV)
-			return ret;
-	}
-	return ret;*/
-	
-	//full implementation version
-	MsgEnv * ret = NULL;
 	while(MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) <= 0)
 	{
 		if (CURRENT_PROCESS->is_i_process == TRUE ){
-			return ret;
+			return NULL;
 		}else{
-#if DEBUG
+#if DEBUG //leave my code in for merge conflict here
 			printf("Process %s is getting blocked on receive\n",CURRENT_PROCESS->name);
 #endif
 			k_process_switch(BLOCKED_ON_RCV);
 		}
 	}
 
-	ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
+	MsgEnv *ret = (MsgEnv *)MsgEnvQ_dequeue(CURRENT_PROCESS->rcv_msg_queue);
 	k_log_event(&RECEIVE_TRACE_BUF, ret);
 	return ret;
 }
@@ -165,8 +125,6 @@ int k_send_console_chars(MsgEnv *message_envelope)
 {
 	if (!message_envelope)
 		return NULL_ARGUMENT;
-
-	//message_envelope->msg_type = DISPLAY_ACK;
 	int retVal = k_send_message(CRT_I_PROCESS_ID, message_envelope);
 	crt_i_proc(0);
 	return retVal;
@@ -176,21 +134,13 @@ int k_get_console_chars(MsgEnv *message_envelope)
 {
 	if (!message_envelope)
 		return NULL_ARGUMENT;
-	//message_envelope->msg_type = CONSOLE_INPUT;
 	int retVal = k_send_message( KB_I_PROCESS_ID, message_envelope);
-
-	/*ps("invoking kbd");
-	if (DEBUG==1) {
-		printf("keyboard process returned to get-console-chars\n");
-	}*/
-
 	return retVal;
 }
 
 void atomic(bool_t state)
 {
 	return;
-
 	static sigset_t oldmask;
 	sigset_t newmask;
 	if (state == TRUE)
@@ -211,6 +161,7 @@ void atomic(bool_t state)
 	}
 	else
 	{
+		//MERGEEE CONFLICT (LEAVE MY CODE, leave the comments in)
 		ps("before decrementing atomic count, pcb state");
 		//pp(CURRENT_PROCESS);
 		CURRENT_PROCESS->a_count--; //every time a primitive finishes, decrement by 1
@@ -261,18 +212,16 @@ void k_process_switch(ProcessState next_state)
 	// was successful
 	if (next_process != NULL)
 	{
+		ps("Inside Process Switch. Current process is:");
+		pp(CURRENT_PROCESS);
+
 		CURRENT_PROCESS->state = next_state;
 		pcb* old_process = CURRENT_PROCESS;
 		CURRENT_PROCESS = next_process;
 		CURRENT_PROCESS->state = EXECUTING;
-		//printf("Inside Process Switch. OLD/Current process is: %i and new process is: %i\n",old_process->pid,next_process->pid);
-		//pp(old_process);
-		//ps("NEW/Next process is");
-		//pp(next_process);
-		//pp(CURRENT_PROCESS);
 		k_context_switch((old_process->buf), (CURRENT_PROCESS->buf));
 	}
-	//ps("Back in process switch after context");
+	ps("Back in process switch after context");
 }
 
 void k_context_switch(jmp_buf prev, jmp_buf next)
@@ -294,23 +243,30 @@ int k_release_processor()
 	//pp(CURRENT_PROCESS);
 	proc_pq_enqueue(RDY_PROC_QUEUE,CURRENT_PROCESS);
 	k_process_switch(READY);
-	//ps("in release processor, beforing to executing program");
+	ps("in k release processor before returning");
 	return SUCCESS;
 }
 
 int k_request_process_status(MsgEnv *env)
 {
-	char* status = (char*)env->data;
+	char status[500];
+    char header[80];
+    sprintf(header, "Process ID\tPriority\tState\n");
+    strcat(status, header);
 	int i;
 	for (i = 0; i < PROCESS_COUNT; ++i)
 	{
-		*status = PCB_LIST[i]->pid;
+		char proc_status[100];
+		sprintf(proc_status, "%i\t\t%i\t\t%s\n", PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
+		strcat(status, proc_status);
+		/**status = PCB_LIST[i]->pid;
 		status ++;
 		*status = PCB_LIST[i]->state;
 		status++;
 		*status = PCB_LIST[i]->priority;
-		status++;
+		status++;*/
 	}
+	sprintf(env->data, status);
 	return SUCCESS;
 }
 
@@ -326,7 +282,7 @@ int k_change_priority(int target_priority, int target_pid)
 			return ILLEGAL_ARGUMENT;
 
 	pcb* target_pcb = pid_to_pcb(target_pid);
-	if (target_pcb->pid == NULL_PROCESS_ID || target_pcb->is_i_process == TRUE)
+	if (target_pcb->pid == NULL_PROCESS_ID)
 		return ILLEGAL_ARGUMENT;
 
 	// if on a ready queue, take if off, change priority, and put it back on
@@ -378,36 +334,53 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     int i;
 
     // Assign the memory locations which will be written to in the message envelope
-    int* buff_size = (int*)msg_env->data;
+   /* int* buff_size = (int*)msg_env->data;
     *buff_size = send_size;
     buff_size++;
     *buff_size = receive_size;
-    buff_size++;
+    buff_size++;*/
 
-    TraceLog* log_stack =  (TraceLog*)(buff_size);
+    char send_header[80];
+    sprintf(send_header, "Send Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
+    strcat(msg_env->data, send_header);
+    TraceLog* log_stack =  (TraceLog*)msg_env->data;
     i = SEND_TRACE_BUF.head;
+    int count = 1;
    do
     {
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
-    	log_stack->dest_pid = log->dest_pid;
+    	char trace[100];
+
+    	sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	strcat(msg_env->data, trace);
+    	break;
+    	/*log_stack->dest_pid = log->dest_pid;
     	log_stack->msg_type = log->msg_type;
     	log_stack->sender_pid = log->sender_pid;
     	log_stack->time_stamp = log->time_stamp;
-    	log_stack++;
+    	log_stack++;*/
     	i = (i+1)%TRACE_LOG_SIZE;
     }while(i!=send_tail);
 
+   char receive_header[80];
+   sprintf(receive_header, "Receive Trace Buffer\nTrace Num\tDest Pid\tSender Pid\tMessage Type\tTime Stamp\n");
+   strcat(msg_env->data, receive_header);
     i =  RECEIVE_TRACE_BUF.head;
     do
     {
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
-    	log_stack->dest_pid = log->dest_pid;
+    	char trace[100];
+
+    	//sprintf(trace, "%i\t%i\t%i\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	//strcat(msg_env->data, trace);
+    	/*log_stack->dest_pid = log->dest_pid;
     	log_stack->msg_type = log->msg_type;
     	log_stack->sender_pid = log->sender_pid;
-    	log_stack->time_stamp = log->time_stamp;
+    	log_stack->time_stamp = log->time_stamp;*/
     	log_stack++;
     	i = (i+1)%TRACE_LOG_SIZE;
     }while(i!= receive_tail);
+
     return SUCCESS;
 }
 

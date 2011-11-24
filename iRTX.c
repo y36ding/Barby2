@@ -11,6 +11,8 @@
 #include "rtx_init.h"
 #include "kernal.h"
 
+//MERGE CONFLICT *****KEEP THE NULL AND TEST PROCESS*****
+
 void null_process() {
 	while(1) {
 		release_processor();
@@ -82,10 +84,10 @@ void processP() {
 	*/
 
 	const int tWait = 500000;
-
-	//ps("Requesting env in Proc P");
+	printf("Requesting env in Proc P\n");
+	ps("Requesting env in Proc P");
 	MsgEnv* env = request_msg_env();
-	//ps("Envelopes Allocated");
+	ps("Envelopes Allocated");
 
 	while (1) {
 		printf("Asking for Characters\n");
@@ -126,6 +128,7 @@ void processP() {
 
 		release_message_env(env);
 	}
+
 }
 
 //**************************************************************************
@@ -166,6 +169,9 @@ int main() {
     longjmp(first_pcb->buf, 1);
 
 	ps("Back in main");
+	//k_process_switch(READY);
+	//processP();
+
 	ps("6");
 	//MsgEnv *env = request_msg_env();
 	//send_message(PROCA_ID,env);

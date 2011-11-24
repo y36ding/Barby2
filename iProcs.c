@@ -100,12 +100,8 @@ void kbd_i_proc(int signum)
 			env->data[0] = '\0';
 		}
 
-		if (!strcmp(IN_MEM_P_KEY->indata,"t")) {
-			die(SIGINT);
-		}
-
 		// Send message back to process that called us
-
+		//merge conflict here.... keep my code
 		if (!strcmp(IN_MEM_P_KEY->indata,"s")) {
 			k_send_message(PROCA_ID,env);
 		} else {

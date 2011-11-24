@@ -59,6 +59,7 @@ void pp(pcb* pcb)
 		printf("PCB is NULL\n");
 	else
 	{
+
 		printf("PCB Contents:\n");
 		printf("Name: %s\n", pcb->name);
 		printf("pid: %i\n",pcb->pid);
