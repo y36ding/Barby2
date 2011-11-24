@@ -47,7 +47,7 @@ int k_release_message_env(MsgEnv* env)
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 {
-	ps("In send message");
+	//ps("In send message");
 	pcb* dest_pcb =  pid_to_pcb(dest_process_id);
 
 	if (!dest_pcb || !msg_envelope) {
@@ -68,7 +68,7 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	}
 
 #if DEBUG
-		printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+		//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
 	k_log_event(&SEND_TRACE_BUF, msg_envelope);
@@ -187,7 +187,7 @@ void k_process_switch(ProcessState next_state)
 	if (next_process != NULL)
 	{
 		//printf("Inside Process Switch. Current Process is %s\n", CURRENT_PROCESS->name);
-		ps("Inside Process Switch. Current process is:");
+		//ps("Inside Process Switch. Current process is:");
 		//pp(CURRENT_PROCESS);
 
 		CURRENT_PROCESS->state = next_state;
@@ -196,7 +196,7 @@ void k_process_switch(ProcessState next_state)
 		CURRENT_PROCESS->state = EXECUTING;
 
 		//printf("Next Process is %s\n", next_process->name);
-		ps("Next process process is:");
+		//ps("Next process process is:");
 		//pp(next_process);
 
 		k_context_switch(old_process->buf, CURRENT_PROCESS->buf);

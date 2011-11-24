@@ -93,7 +93,7 @@ void cleanup() {
 		if (MSG_LIST[i] == NULL)
 			break;
 		else {
-			printf("Freeing envelope: %i, Address: %p\n",i,MSG_LIST[i]);
+			//printf("Freeing envelope: %i, Address: %p\n",i,MSG_LIST[i]);
 			if (MSG_LIST[i]->data == NULL) {
 				free(MSG_LIST[i]);
 				break;

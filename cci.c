@@ -86,10 +86,10 @@ void cci_process()
 		{
 			cci_print("We don't support this command yet");
 		}
-		else if(strcmp(first_letter, "n") == 0)
+		else if(strcmp(command, "n") == 0)
 		{
 
-			int priority, pid;
+			/*int priority, pid;
 			// extract priority and pid from the command
 			if (sscanf(command, "%*s %i %i", &priority, &pid)!=2)
 			{
@@ -112,7 +112,7 @@ void cci_process()
 				{
 					cci_print("Priority of specified process could not be changed\n");
 				}
-			}
+			}*/
 		}
 		else if(strcmp(command, "t") == 0)
 		{
