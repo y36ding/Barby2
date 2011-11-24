@@ -7,7 +7,7 @@
 typedef void (*pc)();
 
 typedef enum msg_type {
-    CONSOLE_INPUT, DISPLAY_ACK, COUNT_REPORT, WAKEUP10
+    NONE, CONSOLE_INPUT, DISPLAY_ACK, COUNT_REPORT, WAKEUP10
 }MsgType;
 
 typedef struct MsgEnv {

@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <assert.h>
+#include "debug.h"
 #include <stdlib.h>
 
 #include "MsgEnvQueue.h"

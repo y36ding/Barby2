@@ -60,19 +60,19 @@ void cleanup() {
 	int i;
 	//ps("Freeing All Queues");
 #if DEBUG
-	printf("Destrying Free env queue, Address: %p\n",FREE_ENV_QUEUE);
+	//printf("Destrying Free env queue, Address: %p\n",FREE_ENV_QUEUE);
 #endif
 	MsgEnvQ_destroy(FREE_ENV_QUEUE);
 #if DEBUG
-	printf("Destrying Blocked Queue, Address: %p\n",BLOCKED_QUEUE);
+	//printf("Destrying Blocked Queue, Address: %p\n",BLOCKED_QUEUE);
 #endif
 	proc_q_destroy(BLOCKED_QUEUE);
 #if DEBUG
-	printf("Destrying Display Q, Address: %p\n",DISPLAYQ);
+	//printf("Destrying Display Q, Address: %p\n",DISPLAYQ);
 #endif
 	MsgEnvQ_destroy(DISPLAYQ);
 #if DEBUG
-	printf("Destroying Ready Proc Q, Address: %p\n",RDY_PROC_QUEUE);
+	//printf("Destroying Ready Proc Q, Address: %p\n",RDY_PROC_QUEUE);
 #endif
 	proc_pq_destroy(RDY_PROC_QUEUE);
 
@@ -87,13 +87,13 @@ void cleanup() {
 		}
 	}
 
-	printf("Freeing Messages and Their Data\n");
+	//printf("Freeing Messages and Their Data\n");
 	for (i = 0; i < MSG_ENV_COUNT; ++i) {
 		// deallocate memory until we reach location where allocation may have failed
 		if (MSG_LIST[i] == NULL)
 			break;
 		else {
-			printf("Freeing envelope: %i, Address: %p\n",i,MSG_LIST[i]);
+			//printf("Freeing envelope: %i, Address: %p\n",i,MSG_LIST[i]);
 			if (MSG_LIST[i]->data == NULL) {
 				free(MSG_LIST[i]);
 				break;

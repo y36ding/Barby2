@@ -27,7 +27,7 @@ int init_all_lists() {
 		PCB_LIST[i]->rcv_msg_queue = (MsgEnvQ*) MsgEnvQ_create();
 		PCB_LIST[i]->is_i_process = INIT_TABLE[i].is_i_process;
 		PCB_LIST[i]->location = INIT_TABLE[i].pc_location;
-		PCB_LIST[i]->stack = (char*)malloc(sizeof(STACK_SIZE));
+		PCB_LIST[i]->stack = (char*)malloc(STACK_SIZE);
 		PCB_LIST[i]->next = NULL;
 		PCB_LIST[i]->a_count = 0;
 
@@ -46,7 +46,7 @@ int init_all_lists() {
 				}
 				else
 				{
-					ps("Longjump worked, program run for first time");
+					//printf("Longjump worked, program run for first time\n");
 					CURRENT_PROCESS->location();
 					ps("I SHOULDN'T BE HERE!");
 					pp(CURRENT_PROCESS);
@@ -58,12 +58,13 @@ int init_all_lists() {
 	for (i = 0; i < MSG_ENV_COUNT; i++)
 	{
 		MSG_LIST[i] = (MsgEnv*) malloc(sizeof(MsgEnv));
-		MSG_LIST[i]->time_delay = 0;
-		MSG_LIST[i]->next = NULL;
 		if (MSG_LIST[i] == NULL) {
 			init_status = OTHER_ERROR;
 			break;
 		}
+		MSG_LIST[i]->time_delay = 0;
+		MSG_LIST[i]->msg_type = NONE;
+		MSG_LIST[i]->next = NULL;
 		MSG_LIST[i]->data = (char*) malloc(sizeof(char) * MSG_ENV_SIZE);
 		if (MSG_LIST[i]->data == NULL) {
 			init_status = OTHER_ERROR;
@@ -89,7 +90,7 @@ void init_signals()
 
 	sigset(SIGUSR1, kbd_i_proc);
 	sigset(SIGUSR2, crt_i_proc);
-	//sigset(SIGALRM,timer_i_proc);
+	sigset(SIGALRM,timer_i_proc);
 
 	//alarm(1);
 }

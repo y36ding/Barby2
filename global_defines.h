@@ -15,15 +15,17 @@ typedef int bool_t;
 #define PROCB_ID			   5
 #define PROCC_ID			   6
 #define NULL_PROCESS_ID		   7
+#define TEST_PROCESS_ID		   8
+#define CLOCK_PROCESS_ID	   9
 
 // RTX Constants
-#define MSG_ENV_SIZE 200
-#define MSG_ENV_COUNT 30
-#define NUM_PRIORITY_LEVEL 4
+#define MSG_ENV_SIZE 		   200
+#define MSG_ENV_COUNT 		   50
+#define NUM_PRIORITY_LEVEL 	   4
 #define STACK_SIZE             4*4096
-#define STK_OFFSET            16
-#define PROCESS_COUNT 8
-#define NUM_PRIORITIES 4
+#define STK_OFFSET             16
+#define PROCESS_COUNT 		   10
+#define NUM_PRIORITIES 		   4
 
 // error codes
 #define SUCCESS 0
