@@ -255,6 +255,7 @@ int k_change_priority(int target_priority, int target_pid)
     if(target_pcb->state == READY)
     {
         proc_pq_remove(RDY_PROC_QUEUE, target_pcb);
+        printf("Changing priority of %s with old priority %i", target_pcb->name, target_pcb->priority);
         target_pcb->priority = target_priority;
         proc_pq_enqueue(RDY_PROC_QUEUE, target_pcb);
     }

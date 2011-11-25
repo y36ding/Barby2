@@ -93,7 +93,7 @@ void cci_process()
 			// extract priority and pid from the command
 			if (sscanf(command, "%*s %i %i", &priority, &pid)!=2)
 			{
-				sprintf(formatted_msg, "Invalid format for command %s.clockTime; It should be: n <priority> <process id>\n", "n");
+				sprintf(formatted_msg, "Invalid format for command %s. It should be: n <priority> <process id>\n", "n");
 				cci_print(formatted_msg);
 			}
 			else
@@ -101,7 +101,6 @@ void cci_process()
 				retVal = change_priority(priority, pid);
 				sprintf(formatted_msg, "Priority: %i, Pid: %i\n", priority, pid);
 				cci_print(formatted_msg);
-				retVal = SUCCESS;
 				if (retVal == ILLEGAL_ARGUMENT)
 				{
 					sprintf(formatted_msg, "Invalid arguments. Ensure that the priority is between [0-3], and the process ID is a valid"
