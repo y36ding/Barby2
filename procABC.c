@@ -94,10 +94,9 @@ void procC()
 					msg_env = (MsgEnv*)receive_message();
 					if (msg_env->msg_type == DISPLAY_ACK)
 					{
-						printf("\nProcess C requesting 3 second delay!\n");
 						if(request_delay(3, WAKEUP10, msg_env)!= SUCCESS)
 						{
-							printf("requesting delay for Process C went wrong");
+							ps("requesting delay for Process C went wrong");
 						}
 						while(1){
 							msg_env = receive_message();
