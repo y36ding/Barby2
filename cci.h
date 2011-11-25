@@ -1,10 +1,12 @@
 #ifndef _CCI_H_
 #define _CCI_H_
 
-int cci_print(MsgEnvQ* cci_q, const char* format, ..);
-int check_command_format(char *data);
-char format_output(fcase, char* data)
+void cci_print(const char* print);
+int setClock (char* rawTimeString);
+void displayClock (int newStatus);
 
-void start_cci()
+extern int clockDisplayRequest;
+extern MsgEnvQ *envQ;
+extern int hour, min, sec, clockTime;
 
 #endif

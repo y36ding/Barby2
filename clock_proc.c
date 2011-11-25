@@ -1,18 +1,22 @@
 #include "rtx.h"
 #include "userAPI.h"
+#include "cci.h"
 
-int hour, min, sec;
+
 int clockDisplayRequest; //0 when not displaying, 1 when displaying
 MsgEnvQ *envQ;
-MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
-int checkBit, clockTime;
+int hour, min, sec, clockTime;;
 
 void clock_process() {
+
+	MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
+	int checkBit;
 
 	envQ = MsgEnvQ_create();
 	clockDisplayRequest = 0;
 	clockTime = 0;
 	timeoutEnv = (MsgEnv*) request_msg_env();
+	displayEnv = (MsgEnv*) request_msg_env();
 
 	checkBit = request_delay(1,WAKEUP10,timeoutEnv);
 	if (checkBit!=SUCCESS) {
@@ -26,13 +30,16 @@ void clock_process() {
 		else
 			generalEnv = MsgEnvQ_dequeue(envQ);
 
-		if (generalEnv->msg_type == DISPLAY_ACK) {
-			release_message_env(generalEnv);
+
+		if (generalEnv->msg_type==DISPLAY_ACK) {
+			displayEnv = generalEnv;
+			continue;
 		}
 
 		//envelope from timing services
 		if (generalEnv->msg_type == WAKEUP10) {
-			release_message_env(generalEnv);
+			//release_message_env(generalEnv);
+			timeoutEnv = generalEnv;
 			checkBit = request_delay(1, WAKEUP10, timeoutEnv);
 			if (checkBit != SUCCESS) {
 				ps("Message couldnt be sent to timer iproc from clock process");
@@ -40,7 +47,6 @@ void clock_process() {
 			//86400 = 24hrs in secs
 			clockTime++;//(int32_t)((clock_get_system_time()-ref)/10+offset)%SEC_IN_HR;
 			if (clockDisplayRequest) {
-				displayEnv = (MsgEnv*) request_msg_env();
 				/*int hours = clockTime%3600;
 				int mins = (clockTime - hours*60*60)%60;
 				int secs = (clockTime - hours*60*60 - mins*60)%60;*/

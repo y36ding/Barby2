@@ -19,8 +19,7 @@ MsgEnv* k_request_msg_env()
 	while (MsgEnvQ_size(FREE_ENV_QUEUE) == 0)
 	{
 		fflush(stdout);
-		printf("MSG ENV DONE\n");
-		ps("msg env done");
+		ps("One of Message Envelopes!");
 		fflush(stdout);
 		if(CURRENT_PROCESS->is_i_process)
 			return NULL;
@@ -29,6 +28,7 @@ MsgEnv* k_request_msg_env()
 	}
 
 	MsgEnv* free_env = (MsgEnv*)MsgEnvQ_dequeue(FREE_ENV_QUEUE);
+	free_env->sender_pid = CURRENT_PROCESS->pid; // for debugging purposes in order to track envelopes
 	return free_env;
 }
 
@@ -38,6 +38,7 @@ int k_release_message_env(MsgEnv* env)
 		return NULL_ARGUMENT;
 
 	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+	env->sender_pid = -1; // debugging purposes. -1 means no process has this envelope
 	if (proc_q_is_empty(BLOCKED_QUEUE) != TRUE)
 	{
 		pcb* blocked_process = proc_q_dequeue(BLOCKED_QUEUE);
@@ -234,6 +235,7 @@ int k_request_process_status(MsgEnv *env)
 	{
 		offset += sprintf(env->data+offset, "%s\t\t%i\t\t%i\t\t%s\n", PCB_LIST[i]->name, PCB_LIST[i]->pid, PCB_LIST[i]->priority, state_type(PCB_LIST[i]->state));
 	}
+	sprintf(env->data+offset, "\n");
 	return SUCCESS;
 }
 
@@ -319,5 +321,6 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!= receive_tail);
+    sprintf(msg_env->data+offset, "\n");
     return SUCCESS;
 }
