@@ -21,7 +21,7 @@ MsgEnv* CCI_DISPLAY_ENV = NULL;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 const char * KB_SHARED_NAME = "keyboardBuffer"; //the name of the keyboard_memory file
 const char * CRT_SHARED_NAME = "crtBuffer"; //the name of the crt_memory file
-int NUM_OF_TICKS = 0;
+float NUM_OF_TICKS = 0;
 int DISPLAY_CLOCK = 0;
 int BUFSIZE = BUFFERSIZE;
 inputbuf * IN_MEM_P_KEY = NULL;	// pointer to structure that is the shared memory

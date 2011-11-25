@@ -84,7 +84,7 @@ void cci_process()
 		}
 		else if(strncasecmp(command, "c", offset) == 0)
 		{
-			cci_print("We don't support this command yet");
+			cci_print("We don't support this command yet\n");
 		}
 		else if(strncasecmp(command, "n", 1) == 0)
 		{
@@ -156,5 +156,9 @@ void cci_process()
 		//printf("releasing %p\n", cci_env);
 		//release_message_env(cci_env);
 	}
+	fflush(stdout);
+	printf("WTH! CCI came out of while loop!");
+	fflush(stdout);
+	terminate();
 }
 

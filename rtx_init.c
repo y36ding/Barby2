@@ -101,7 +101,7 @@ void init_signals()
 	sigset(SIGUSR2, crt_i_proc);
 	sigset(SIGALRM,timer_i_proc);
 
-	alarm(1);
+	ualarm((useconds_t) 100000, (useconds_t) 0);
 }
 
 void init_mmaps() {

@@ -18,6 +18,9 @@ MsgEnv* k_request_msg_env()
 {
 	while (MsgEnvQ_size(FREE_ENV_QUEUE) == 0)
 	{
+		fflush(stdout);
+		ps("One of Message Envelopes!");
+		fflush(stdout);
 		if(CURRENT_PROCESS->is_i_process)
 			return NULL;
 		proc_q_enqueue(BLOCKED_QUEUE, CURRENT_PROCESS);
@@ -58,8 +61,8 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	msg_envelope->dest_pid = dest_process_id;
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 
-#if DEBUG
-	printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+#if 1
+	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
 	if(dest_pcb->state == BLOCKED_ON_RCV)
@@ -304,7 +307,7 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     do
     {
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
-    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), clock_get_time());
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!=send_tail);
@@ -315,7 +318,7 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     do
     {
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
-    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
+    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), clock_get_time());
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!= receive_tail);

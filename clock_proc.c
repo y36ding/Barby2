@@ -28,6 +28,7 @@ void clock_process() {
 		else
 			generalEnv = MsgEnvQ_dequeue(envQ);
 
+
 		if (generalEnv->msg_type==DISPLAY_ACK) {
 			displayEnv = generalEnv;
 			continue;

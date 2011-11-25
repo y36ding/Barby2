@@ -74,7 +74,7 @@ extern int FID_1;
 extern int FID_2;
 extern int FILE_STATUS;
 
-extern int NUM_OF_TICKS;
+extern float NUM_OF_TICKS;
 extern int DISPLAY_CLOCK;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

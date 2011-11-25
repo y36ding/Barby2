@@ -19,7 +19,7 @@ typedef struct MsgEnv {
     int 	sender_pid;
     MsgType 	msg_type;
     char    *data;
-    int time_delay;
+    float time_delay;
 } MsgEnv;
 
 typedef enum process_states {
