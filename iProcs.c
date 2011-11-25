@@ -114,53 +114,38 @@ void timer_i_proc(int signum) {
 	//printf("In get time. Num ticks %i\n", NUM_OF_TICKS);
 
 	int error = k_pseudo_process_switch(TIMER_I_PROCESS_ID);
-	if (error != SUCCESS)
-	{
+	if (error != SUCCESS) {
 		printf("Error! Context Switch failed in keyboard I process");
 		cleanup();
 	}
 
+	clock_inc_time();
 
-	//while(1)
-	//  {
-	        // Increment the time by recording a tick
-			//ps("-----------------In Timer-------------------");
-	        clock_inc_time();
+	MsgEnv* msg_env = (MsgEnv*) k_receive_message();
 
-	        MsgEnv* msg_env = (MsgEnv*)k_receive_message();
+	while (msg_env != NULL && msg_env->msg_type == WAKEUP10) {
+		fflush(stdout);
+		timeout_q_insert(msg_env);
+		msg_env = (MsgEnv*) k_receive_message();
+	}
 
-	        //pm(msg_env);
+	msg_env = (MsgEnv*) check_timeout_q();
+	if (msg_env == NULL) {
+		fflush(stdout);
+	}
 
-	        while (msg_env != NULL && msg_env->msg_type==WAKEUP10)
-	        {
-	        	fflush(stdout);
-	            timeout_q_insert(msg_env);
-	            msg_env = (MsgEnv*)k_receive_message();
-	        }
+	if (msg_env != NULL) {
+		// Send the envelope back
+		fflush(stdout);
+		msg_env->msg_type = WAKEUP10;
 
-			msg_env = (MsgEnv*)check_timeout_q();
-			if (msg_env==NULL){
-				fflush(stdout);
-			}
+		//char tempData[50] = "Time Expired!\0";
+		//memcpy(msg_env->data, tempData, strlen(tempData) + 1);
+		k_send_message(msg_env->sender_pid, msg_env);
+	}
 
-	        if (msg_env != NULL)
-	        {
-	            // Send the envelope back
-	        	fflush(stdout);
-	        	msg_env->msg_type = WAKEUP10;
-
-	        	//char
-	        	char tempData[50] = "Time Expired!\0";
-	        	memcpy(msg_env->data,tempData,strlen(tempData)+1);
-	        	//msg_env->data[0] = 'U';
-	            k_send_message(msg_env->sender_pid, msg_env);
-	        }
-
-			//exit i process
-	        //k_i_process_exit();
-	    //}
-	        alarm(1);
-	        k_return_from_switch();
+	ualarm((useconds_t) 100000, (useconds_t) 0);
+	k_return_from_switch();
 
 }
 

@@ -26,8 +26,13 @@ void clock_process() {
 		else
 			generalEnv = MsgEnvQ_dequeue(envQ);
 
+		if (generalEnv->msg_type == DISPLAY_ACK) {
+			release_message_env(generalEnv);
+		}
+
 		//envelope from timing services
 		if (generalEnv->msg_type == WAKEUP10) {
+			release_message_env(generalEnv);
 			checkBit = request_delay(1, WAKEUP10, timeoutEnv);
 			if (checkBit != SUCCESS) {
 				ps("Message couldnt be sent to timer iproc from clock process");

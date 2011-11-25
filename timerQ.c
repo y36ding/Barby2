@@ -12,7 +12,7 @@ void timeout_q_insert (MsgEnv* insert_env)
     new_msg_env->time_delay = timeout;*/
 
 	//get_RTX_time() perhaps?
-	insert_env->time_delay = clock_get_time()+insert_env->time_delay;
+	insert_env->time_delay = clock_get_time()+((insert_env->time_delay)*10);
 
 
     // Check for empty queue

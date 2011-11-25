@@ -52,7 +52,7 @@ void procB()
 	{
 		msg_forward = (MsgEnv*)receive_message();
 #if DEBUG
-		printf("Message Envelope data holds %d and %i\n",atoi(msg_forward->data),msg_forward->time_delay);//*(int*)
+		printf("Message Envelope data holds %d and %f\n",atoi(msg_forward->data),msg_forward->time_delay);//*(int*)
 		//printf("Message Envelope data holds %i\n",msg_forward->time_delay);
 #endif
 		send_message(PROCC_ID, msg_forward);
@@ -70,6 +70,7 @@ void procC()
 	MsgEnv *msg_env;
 	while(1)
 	{
+		//while (MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue) > 0 || MsgEnvQ_size(msgQueue) == 0)
 		while(MsgEnvQ_size(msgQueue) == 0)
 		{
 			msg_env = (MsgEnv*)receive_message();

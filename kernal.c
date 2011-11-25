@@ -18,6 +18,10 @@ MsgEnv* k_request_msg_env()
 {
 	while (MsgEnvQ_size(FREE_ENV_QUEUE) == 0)
 	{
+		fflush(stdout);
+		printf("MSG ENV DONE\n");
+		ps("msg env done");
+		fflush(stdout);
 		if(CURRENT_PROCESS->is_i_process)
 			return NULL;
 		proc_q_enqueue(BLOCKED_QUEUE, CURRENT_PROCESS);
@@ -56,7 +60,7 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	msg_envelope->dest_pid = dest_process_id;
 	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 
-#if DEBUG
+#if 1
 	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 

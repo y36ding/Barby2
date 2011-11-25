@@ -68,7 +68,7 @@ int main (int argc, char * argv[])
 			usleep(100000);
 		}
 		fflush(stdout);
-		printf("%s",in_mem_p->outdata);
+		printf("=============%s\n",in_mem_p->outdata);
 		fflush(stdout);
 		in_mem_p->ok_flag = WAITING_TO_BE_WRITTEN;
 		kill(parent_pid,SIGUSR2);
