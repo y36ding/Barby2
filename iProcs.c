@@ -7,7 +7,7 @@ void crt_i_proc(int signum)
 #if DEBUG
 	//printf("Current process is: %s \n",CURRENT_PROCESS->name);
 #endif
-	int error = k_pseudo_process_switch(CRT_I_PROCESS_ID);
+	int error = k_i_proc_interrupt(CRT_I_PROCESS_ID);
 
 	if (error != SUCCESS)
 	{
@@ -39,7 +39,7 @@ void crt_i_proc(int signum)
 			k_send_message(envTemp->sender_pid, envTemp);
 			//ps("CRT returning envelope!");
 			//ps("Display ACK sent by crt");
-			k_return_from_switch();
+			k_i_proc_return();
 #if DEBUG
 			//printf("Current process is: %s \n",CURRENT_PROCESS->name);
 			//printf("Size of free queue: %i\n",MsgEnvQ_size(FREE_ENV_QUEUE));
@@ -62,13 +62,13 @@ void crt_i_proc(int signum)
 	MsgEnvQ_enqueue(DISPLAYQ,env);
 	IN_MEM_P_CRT->ok_flag =  OKAY_DISPLAY;
 
-	k_return_from_switch();
+	k_i_proc_return();
 	return;
 }
 
 void kbd_i_proc(int signum)
 {
-	int error = k_pseudo_process_switch(KB_I_PROCESS_ID);
+	int error = k_i_proc_interrupt(KB_I_PROCESS_ID);
 	if (error != SUCCESS)
 	{
 		printf("Error! Context Switch failed in keyboard I process");
@@ -106,14 +106,14 @@ void kbd_i_proc(int signum)
 		IN_MEM_P_KEY->length = 0;
 		IN_MEM_P_KEY->ok_flag = OKAY_TO_WRITE; // okay to write again
 	}
-	k_return_from_switch();
+	k_i_proc_return();
 	return;
 }
 
 void timer_i_proc(int signum) {
 	//printf("In get time. Num ticks %i\n", NUM_OF_TICKS);
 
-	int error = k_pseudo_process_switch(TIMER_I_PROCESS_ID);
+	int error = k_i_proc_interrupt(TIMER_I_PROCESS_ID);
 	if (error != SUCCESS) {
 		printf("Error! Context Switch failed in keyboard I process");
 		cleanup();
@@ -145,7 +145,7 @@ void timer_i_proc(int signum) {
 	}
 
 	ualarm((useconds_t) 100000, (useconds_t) 0);
-	k_return_from_switch();
+	k_i_proc_return();
 
 }
 

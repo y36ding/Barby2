@@ -32,21 +32,25 @@ MsgEnv* k_request_msg_env()
 	return free_env;
 }
 
-int k_release_message_env(MsgEnv* env)
+int k_release_msg_env(MsgEnv* env)
 {
 	if (env == NULL)
 		return NULL_ARGUMENT;
-
-	MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
-	env->sender_pid = -1; // debugging purposes. -1 means no process has this envelope
-	if (proc_q_is_empty(BLOCKED_QUEUE) != TRUE)
+	int retVal;
+	env->sender_pid = -1;
+	retVal = MsgEnvQ_enqueue(FREE_ENV_QUEUE, env);
+	// debugging purposes. -1 means no process has this envelope when we print envelopes using
+	// cci
+	if (retVal == SUCCESS)
 	{
-		pcb* blocked_process = proc_q_dequeue(BLOCKED_QUEUE);
-		blocked_process->state = READY;
-		proc_pq_enqueue(RDY_PROC_QUEUE, blocked_process);
+		if (proc_q_is_empty(BLOCKED_QUEUE) != TRUE)
+		{
+			pcb* blocked_process = proc_q_dequeue(BLOCKED_QUEUE);
+			blocked_process->state = READY;
+			retVal = proc_pq_enqueue(RDY_PROC_QUEUE, blocked_process);
+		}
 	}
-
-	return SUCCESS;
+	return retVal;
 }
 
 int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
@@ -57,26 +61,30 @@ int k_send_message(int dest_process_id, MsgEnv *msg_envelope)
 	if (!dest_pcb || !msg_envelope) {
 		return NULL_ARGUMENT;
 	}
+	int retVal;
 	msg_envelope->sender_pid = CURRENT_PROCESS->pid;
 	msg_envelope->dest_pid = dest_process_id;
-	MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
+	retVal = MsgEnvQ_enqueue(dest_pcb->rcv_msg_queue, msg_envelope);
 
 #if 1
 	//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
-	if(dest_pcb->state == BLOCKED_ON_RCV)
+	if (retVal == SUCCESS)
 	{
-		dest_pcb->state = READY;
-		proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
-	}
+		if(dest_pcb->state == BLOCKED_ON_RCV)
+		{
+			dest_pcb->state = READY;
+			retVal = proc_pq_enqueue(RDY_PROC_QUEUE,dest_pcb);
+		}
 
 #if DEBUG
-		//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
+			//printf("message SENT on enqueued on PID %i and its size is %i\n",dest_pcb->pid,MsgEnvQ_size(dest_pcb->rcv_msg_queue));
 #endif
 
-	k_log_event(&SEND_TRACE_BUF, msg_envelope);
-	return SUCCESS;
+		k_log_event(&SEND_TRACE_BUF, msg_envelope);
+	}
+	return retVal;
 }
 
 MsgEnv* k_receive_message()
@@ -157,7 +165,7 @@ void atomic(bool_t state)
 	}
 }
 
-int k_pseudo_process_switch(int pid)
+int k_i_proc_interrupt(int pid)
 {
 	pcb* p = (pcb*)pid_to_pcb(pid);
 	if (p == NULL)
@@ -167,7 +175,7 @@ int k_pseudo_process_switch(int pid)
 	return SUCCESS;
 }
 
-void k_return_from_switch()
+void k_i_proc_return()
 {
 	pcb* temp = CURRENT_PROCESS;
 	CURRENT_PROCESS = PREV_PROCESS;

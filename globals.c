@@ -15,7 +15,6 @@ MsgEnvQ* DISPLAYQ;
 MsgEnv* MSG_LIST[MSG_ENV_COUNT];
 proc_pq* RDY_PROC_QUEUE = NULL;
 MsgEnv * TIMEOUT_Q = NULL;
-MsgEnv* CCI_DISPLAY_ENV = NULL;
 
 // Used in initialization
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

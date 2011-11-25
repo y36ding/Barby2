@@ -50,7 +50,7 @@ void clock_process() {
 				int secs = (clockTime - hours*60*60 - mins*60)%60;*/
 				int hours = clockTime/3600;
 				int mins = (clockTime%3600)/60;
-				int secs = clockTime%60;
+				int secs = clockTime%60; // whatever is remainder is seconds
 
 				sprintf(displayEnv->data,"\n%02i:%02i:%02i",hours,mins,secs);
 				send_console_chars(displayEnv);
@@ -61,39 +61,9 @@ void clock_process() {
 }
 
 
-int setClock (char* rawTimeString)
+void setClock (hour, min, sec)
 {
-	//has to be sent to the function in the format hh:mm:ss exactly
-    if (rawTimeString == NULL) {
-        return NULL_ARGUMENT;
-    }
-    if (rawTimeString[2] != ':' || rawTimeString[5] != ':') {
-    	ps("Please enter proper formatted strings");
-    	return ILLEGAL_ARGUMENT;
-    }
-
-    //parse timeParam string
-    char hourString [3] = { '0', '0', '\0'};
-    char minString [3] = { '0', '0', '\0'};
-    char secString [3] = { '0', '0', '\0'};
-    int i, hr, min, sec;
-    for (i=0;i<2;i++)
-    {
-        hourString[i] =rawTimeString[i];
-        minString[i]=rawTimeString[3+i];
-        secString[i]=rawTimeString[6+i];
-    }
-
-    hour = atoi(hourString);
-    min = atoi(minString);
-    sec = atoi(secString);
-
-    if (hour>23 || min>59 || sec > 59)
-        return ILLEGAL_ARGUMENT;
-
-    clockTime = (hr*3600 + min*60 + sec);
-
-    return SUCCESS;
+    clockTime = (hour*3600 + min*60 + sec);
 }
 
 //setter function for wallClock display status bit

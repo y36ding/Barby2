@@ -37,7 +37,7 @@ int get_console_chars(MsgEnv *message_envelope)
 int release_message_env(MsgEnv* env)
 {
 	atomic(ON);
-	int ret = k_release_message_env(env);
+	int ret = k_release_msg_env(env);
 	atomic(OFF);
 	return ret;
 
@@ -82,7 +82,7 @@ int change_priority(int new_priority, int target_pid)
 	return ret;
 }
 
-int get_trace_buffer(MsgEnv *env)
+int get_trace_buffers(MsgEnv *env)
 {
 	atomic(ON);
 	int ret = k_get_trace_buffer(env);
@@ -111,7 +111,7 @@ char* msg_type(int i)
 	case WAKEUP10:
 		return "WAKEUP10";
 	default:
-		return "NO TYPE";
+		return "NO TYPE\t";
 	}
 }
 
@@ -132,7 +132,7 @@ char* state_type(int i)
 	case INTERRUPTED:
 		return "INTERRUPTED";
 	default:
-		return "NO TYPE";
+		return "NO TYPE\t";
 	}
 }
 

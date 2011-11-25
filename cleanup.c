@@ -107,6 +107,4 @@ void cleanup() {
 // Die function
 void die(int signal) {
 	cleanup();
-	printf("Ending main process ...\n");
-	exit(0);
 }

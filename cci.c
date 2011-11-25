@@ -3,6 +3,7 @@
 #include "cci.h"
 #include "string.h"
 
+MsgEnv* CCI_DISPLAY_ENV;
 
 void cci_print(const char* print)
 {
@@ -39,6 +40,7 @@ void cci_process()
 		//Obtained keyboard input
 		char command [MAXCHAR];
 		int offset = sprintf(command,  cci_env->data);
+		// Check atleast 2 characters even if user entered 1.
 		if (offset < 2)
 			offset = 2;
 
@@ -76,15 +78,46 @@ void cci_process()
 		// Display Trace Buffers
 		else if(strncasecmp(command, "b", offset) == 0)
 		{
-			retVal = get_trace_buffer(cci_env);
+			retVal = get_trace_buffers(cci_env);
 			if (retVal != SUCCESS)
 				cci_print("Failed to get trace buffers");
 			sprintf(formatted_msg, "%s", cci_env->data);
 			cci_print(formatted_msg);
 		}
-		else if(strncasecmp(command, "c", offset) == 0)
+		else if(strncasecmp(command, "c", 1) == 0)
 		{
-			cci_print("We don't support this command yet\n");
+			if(command[4] != ':' || command[7] != ':' || strlen(command) != 10)
+			{
+				sprintf(formatted_msg, "Invalid format for command %s. It should be: c <hh>:<mm>:<ss>\n", "c");
+				cci_print(formatted_msg);
+			}
+			else
+			{
+				const char * rawTimeString = command+2;
+			    char hourString [3] = { '0', '0', '\0'};
+			    char minString [3] = { '0', '0', '\0'};
+			    char secString [3] = { '0', '0', '\0'};
+			    int i, hr, min, sec;
+			    for (i=0;i<2;i++)
+			    {
+			        hourString[i] =rawTimeString[i];
+			        minString[i]=rawTimeString[3+i];
+			        secString[i]=rawTimeString[6+i];
+			    }
+
+			    hour = atoi(hourString);
+			    min = atoi(minString);
+			    sec = atoi(secString);
+
+			    if (hour>23 || min>59 || sec > 59)
+			    {
+			    	sprintf(formatted_msg, "Invalid input."
+			    			" Ensure hh not greater than 23, mm not greater than 59, ss not greater than 59.\n");
+			    	cci_print(formatted_msg);
+			    }
+			    else
+			    	setClock(hour, min, sec);   // offset the "c " (c-space)
+			}
 		}
 		else if(strncasecmp(command, "n", 1) == 0)
 		{
