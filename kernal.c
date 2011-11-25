@@ -283,7 +283,7 @@ int k_log_event(TraceBuffer* trace_buf, MsgEnv *env)
 	trace_buf->trace_log[tail].dest_pid = env->dest_pid;
 	trace_buf->trace_log[tail].sender_pid = env->sender_pid;
 	trace_buf->trace_log[tail].msg_type = env->msg_type;
-	trace_buf->trace_log[tail].time_stamp = 4; // Should this be a RTX function?
+	trace_buf->trace_log[tail].time_stamp = clock_get_time();
 	if (trace_buf->count == TRACE_LOG_SIZE)
 		trace_buf->head = (trace_buf->head + 1)%TRACE_LOG_SIZE;
 	else
@@ -306,7 +306,7 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     do
     {
     	TraceLog* log = &SEND_TRACE_BUF.trace_log[i];
-    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), clock_get_time());
+    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!=send_tail);
@@ -317,7 +317,7 @@ int k_get_trace_buffer( MsgEnv *msg_env )
     do
     {
     	TraceLog* log = &RECEIVE_TRACE_BUF.trace_log[i];
-    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), clock_get_time());
+    	offset += sprintf(msg_env->data+offset, "%i\t\t%i\t\t%i\t\t%s\t%i\n", count, log->dest_pid, log->sender_pid, msg_type(log->msg_type), log->time_stamp);
     	i = (i+1)%TRACE_LOG_SIZE;
     	count++;
     }while(i!= receive_tail);
