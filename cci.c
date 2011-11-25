@@ -56,7 +56,7 @@ void cci_process()
 			}
 			else
 			{
-				cci_print("A has already started.");
+				cci_print("A has already started.\n");
 			}
 		}
 		else if(strncasecmp(command, "ps", offset ) == 0)
@@ -84,7 +84,7 @@ void cci_process()
 			sprintf(formatted_msg, "%s", cci_env->data);
 			cci_print(formatted_msg);
 		}
-		else if(strncasecmp(command, "c", 1) == 0)
+		else if(strncasecmp(command, "c", 2) == 0)
 		{
 			if(command[4] != ':' || command[7] != ':' || strlen(command) != 10)
 			{
@@ -169,6 +169,36 @@ void cci_process()
 				}
 				offset += sprintf(formatted_msg+offset, "%i\t\t%s\n", i+1, pcb_name);
 			}
+			cci_print(formatted_msg);
+		}
+		// debugging, check all queues
+		else if(strncasecmp(command, "cq", offset) == 0)
+		{
+			int offset = 0;
+			offset += sprintf(formatted_msg, "\nREADY QUEUE");
+			int rdy_queues = proc_pq_get_num_prorities(RDY_PROC_QUEUE);
+			int i;
+			for (i = 0; i < rdy_queues; ++i)
+			{
+
+				offset+= sprintf(formatted_msg+offset, "\nPriority %i: ", i);
+				pcb* head = RDY_PROC_QUEUE->priority_queues[i]->head;
+				while (head != NULL)
+				{
+					offset += sprintf(formatted_msg+offset, "%s->", head->name);
+					head = head->next;
+				}
+			}
+
+			offset += sprintf(formatted_msg+offset, "\n\nBLOCKED QUEUE: ");
+			pcb* head = BLOCKED_QUEUE->head;
+			while(head!=NULL)
+			{
+				offset += sprintf(formatted_msg+offset, "%s->", head->name);
+				head = head->next;
+			}
+			offset += sprintf(formatted_msg + offset, "\n\n");
+
 			cci_print(formatted_msg);
 		}
 		// One space and enter results in CCI: being printed again

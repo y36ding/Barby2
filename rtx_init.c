@@ -29,7 +29,7 @@ int init_all_lists() {
 		PCB_LIST[i]->stack = (char*)malloc(STACK_SIZE);
 		PCB_LIST[i]->next = NULL;
 		PCB_LIST[i]->a_count = 0;
-		const char* pcb_name;
+
 		switch(PCB_LIST[i]->is_i_process)
 		{
 			case(1):

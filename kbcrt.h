@@ -1,10 +1,12 @@
 #ifndef _KB_CRT_HEADER_
 #define _KB_CRT_HEADER_
 
-#define BUFFERSIZE 100;
+#include "global_defines.h"
 
 // structures for shared memory
-#define MAXCHAR 80
+#define MAXCHAR MSG_ENV_SIZE
+
+#define BUFFERSIZE MAXCHAR+20
 
 // CRT/KB Flags
 #define OKAY_TO_WRITE 0

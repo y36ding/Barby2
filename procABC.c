@@ -28,11 +28,14 @@ void procA ()
 		//request a message envelope, and set the type to COUNT_REPORT
 		//set the data field of the msg env equal to the counter
 		MsgEnv *toB = (MsgEnv*)request_msg_env();
-		while(toB == NULL) {
+
+		// BBJ no need for while loop. We get blocked on request if we couldnt get env.
+		/*while(toB == NULL) {
 			toB = (MsgEnv*)request_msg_env();
-		}
+		}*/
+
 		toB->msg_type = COUNT_REPORT;
-		sprintf(toB->data,"%d",num_count);
+		sprintf(toB->data,"%i",num_count);
 		//toB->time_delay=num_count;
 
 		//send the message envelope to B
@@ -84,8 +87,10 @@ void procC()
 			if( (atoi(msg_env->data)) % 20 == 0)
 			//if( (msg_env->time_delay) % 20 == 0)
 			{
-				char tempData[20] = "\nProcess C\0";
-				memcpy(msg_env->data,tempData,strlen(tempData)+1);
+				// BBJ. Don't use memcpy etc anymore, I think this is causing memory problems in OS since it crashes like 5-6 minutes in!!
+				//char tempData[20] = "\nProcess C\0";
+				//memcpy(msg_env->data,tempData,strlen(tempData)+1);
+				sprintf(msg_env->data, "\nProcess C\n");
 				send_console_chars(msg_env);
 
 				//wait for output confirmation with 'DISPLAY_ACK' msg type

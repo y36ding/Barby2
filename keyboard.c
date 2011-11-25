@@ -70,8 +70,6 @@ int main (int argc, char * argv[])
 		if ( c != '\n') {
 					if( buf_index < MAXCHAR-1 ) {
 						in_mem_p->indata[buf_index++] = c;
-					} else {
-						//printf("Limit Exceeded, will truncate at  ");
 					}
 				} else {
 					in_mem_p->indata[buf_index] = '\0';

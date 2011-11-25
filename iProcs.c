@@ -85,21 +85,18 @@ void kbd_i_proc(int signum)
 		// Loop until writing in shared memory is done
 		while (IN_MEM_P_KEY->ok_flag==OKAY_TO_WRITE);
 
+
+		strncpy(env->data, IN_MEM_P_KEY->indata, IN_MEM_P_KEY->length+1);
+		// BBJ. Use string.h functions, they're safer.
 		//copies into first parameter from second parameter of length+1 bytes
-		if (IN_MEM_P_KEY->length != 0) {
+		/*if (IN_MEM_P_KEY->length != 0) {
 			memcpy(env->data,IN_MEM_P_KEY->indata,IN_MEM_P_KEY->length + 1);
 		} else {
 			env->data[0] = '\0';
-		}
+		}*/
 
-		// Send message back to process that called us
-		//merge conflict here.... keep my code
-		/*if (!strcmp(IN_MEM_P_KEY->indata,"s")) {
-			k_send_message(PROCA_ID,env);
-		} else {*/
-			env->msg_type=CONSOLE_INPUT;
-			k_send_message(env->sender_pid ,env);
-		//}
+		env->msg_type=CONSOLE_INPUT;
+		k_send_message(env->sender_pid ,env);
 
 		ps("Keyboard sent message");
 
@@ -136,7 +133,6 @@ void timer_i_proc(int signum) {
 
 	if (msg_env != NULL) {
 		// Send the envelope back
-		fflush(stdout);
 		msg_env->msg_type = WAKEUP10;
 
 		//char tempData[50] = "Time Expired!\0";

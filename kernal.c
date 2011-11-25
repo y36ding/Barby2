@@ -18,9 +18,7 @@ MsgEnv* k_request_msg_env()
 {
 	while (MsgEnvQ_size(FREE_ENV_QUEUE) == 0)
 	{
-		fflush(stdout);
 		ps("One of Message Envelopes!");
-		fflush(stdout);
 		if(CURRENT_PROCESS->is_i_process)
 			return NULL;
 		proc_q_enqueue(BLOCKED_QUEUE, CURRENT_PROCESS);
@@ -265,6 +263,7 @@ int k_change_priority(int target_priority, int target_pid)
 	// if on a ready queue, take if off, change priority, and put it back on
     if(target_pcb->state == READY)
     {
+    	assert(!target_pcb->is_i_process);
         proc_pq_remove(RDY_PROC_QUEUE, target_pcb);
         target_pcb->priority = target_priority;
         proc_pq_enqueue(RDY_PROC_QUEUE, target_pcb);
