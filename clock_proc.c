@@ -35,6 +35,7 @@ void clock_process() {
 
 		//envelope from timing services
 		if (generalEnv->msg_type == WAKEUP10) {
+			//release_message_env(generalEnv);
 			timeoutEnv = generalEnv;
 			checkBit = request_delay(1, WAKEUP10, timeoutEnv);
 			if (checkBit != SUCCESS) {
@@ -43,7 +44,6 @@ void clock_process() {
 			//86400 = 24hrs in secs
 			clockTime++;//(int32_t)((clock_get_system_time()-ref)/10+offset)%SEC_IN_HR;
 			if (clockDisplayRequest) {
-
 				/*int hours = clockTime%3600;
 				int mins = (clockTime - hours*60*60)%60;
 				int secs = (clockTime - hours*60*60 - mins*60)%60;*/

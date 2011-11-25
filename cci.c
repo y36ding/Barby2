@@ -89,16 +89,16 @@ void cci_process()
 		else if(strncasecmp(command, "n", 1) == 0)
 		{
 
-			/*int priority, pid;
+			int priority, pid;
 			// extract priority and pid from the command
 			if (sscanf(command, "%*s %i %i", &priority, &pid)!=2)
 			{
-				sprintf(formatted_msg, "Invalid format for command %s.clockTime; It should be: n <priority> <process id>\n", command[0]);
+				sprintf(formatted_msg, "Invalid format for command %s.clockTime; It should be: n <priority> <process id>\n", "n");
 				cci_print(formatted_msg);
 			}
 			else
 			{
-				retVal = change_priority(priortiy, pid);
+				retVal = change_priority(priority, pid);
 				sprintf(formatted_msg, "Priority: %i, Pid: %i\n", priority, pid);
 				cci_print(formatted_msg);
 				retVal = SUCCESS;
@@ -112,7 +112,7 @@ void cci_process()
 				{
 					cci_print("Priority of specified process could not be changed\n");
 				}
-			}*/
+			}
 		}
 		else if(strncasecmp(command, "t", offset) == 0)
 		{
