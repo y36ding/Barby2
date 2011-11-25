@@ -17,21 +17,17 @@ void cci_print(const char* print)
 void cci_process()
 {
 	CCI_DISPLAY_ENV = request_msg_env();
-	MsgEnv *cci_env, *kbd_input, *a_env, *process_status_env, *trace_env;
-	kbd_input = request_msg_env(); // this wont be released since cci_env will eventually have this envelope.
-	a_env = request_msg_env(); // this wont be released as process A will release it later
-	process_status_env = request_msg_env();
-	trace_env = request_msg_env();
+	MsgEnv *cci_env = request_msg_env();
+	MsgEnv*  a_env = request_msg_env(); // this wont be released as process A will release it later
 	char formatted_msg[1000];
 	int retVal;
 
 	while(1)
 	{
-		cci_env = NULL;
-
 		const int twait = 500000;
 		cci_print("CCI: ");
-		get_console_chars(kbd_input);
+		//cci_env = request_msg_env();
+		get_console_chars(cci_env);
 
 		cci_env = receive_message();
 		while(cci_env->msg_type != CONSOLE_INPUT)
@@ -43,6 +39,8 @@ void cci_process()
 		//Obtained keyboard input
 		char command [MAXCHAR];
 		int offset = sprintf(command,  cci_env->data);
+		if (offset < 2)
+			offset = 2;
 
 		// Send a message to process A. This only happens once. If it has already been sent, then prompt user.
 		if (strncasecmp(command, "s", offset) == 0)
@@ -61,10 +59,10 @@ void cci_process()
 		}
 		else if(strncasecmp(command, "ps", offset ) == 0)
 		{
-			retVal = request_process_status(process_status_env);
+			retVal = request_process_status(cci_env);
 			if (retVal != SUCCESS)
 				cci_print("Failed to request process status");
-			sprintf(formatted_msg,  process_status_env->data);
+			sprintf(formatted_msg,  cci_env->data);
 			cci_print(formatted_msg);
 		}
 		else if(strncasecmp(command, "cd", offset) == 0)
@@ -78,29 +76,29 @@ void cci_process()
 		// Display Trace Buffers
 		else if(strncasecmp(command, "b", offset) == 0)
 		{
-			retVal = get_trace_buffer(trace_env);
+			retVal = get_trace_buffer(cci_env);
 			if (retVal != SUCCESS)
 				cci_print("Failed to get trace buffers");
-			sprintf(formatted_msg, "%s", trace_env->data);
+			sprintf(formatted_msg, "%s", cci_env->data);
 			cci_print(formatted_msg);
 		}
 		else if(strncasecmp(command, "c", offset) == 0)
 		{
 			cci_print("We don't support this command yet");
 		}
-		else if(strncasecmp(command, "n", offset) == 0)
+		else if(strncasecmp(command, "n", 1) == 0)
 		{
 
 			/*int priority, pid;
 			// extract priority and pid from the command
 			if (sscanf(command, "%*s %i %i", &priority, &pid)!=2)
 			{
-				sprintf(formatted_msg, "Invalid format for command %s.clockTime;; It should be: n <priority> <process id>\n", first_letter);
+				sprintf(formatted_msg, "Invalid format for command %s.clockTime; It should be: n <priority> <process id>\n", command[0]);
 				cci_print(formatted_msg);
 			}
 			else
 			{
-				//retVal = change_priority(priortiy, pid);
+				retVal = change_priority(priortiy, pid);
 				sprintf(formatted_msg, "Priority: %i, Pid: %i\n", priority, pid);
 				cci_print(formatted_msg);
 				retVal = SUCCESS;
@@ -118,29 +116,35 @@ void cci_process()
 		}
 		else if(strncasecmp(command, "t", offset) == 0)
 		{
-			release_message_env(cci_env);
-			release_message_env(process_status_env);
-			release_message_env(trace_env);
-			release_message_env(CCI_DISPLAY_ENV);
+			// no need to release envelopes as terminate will free all memory from MSG_LIST
 			terminate();
 		}
 		// debugging function. find where all the envelopes are.
 		else if(strncasecmp(command, "en", offset) == 0)
 		{
 			int offset = sprintf(formatted_msg, "\nEnvelope Num\tHeld By\n");
-			for (int i  = 0; i < MSG_ENV_COUNT; ++i)
+			int i;
+			for (i  = 0; i < MSG_ENV_COUNT; ++i)
 			{
-				const char* pcb_name = MSG_LIST[i]->dest_pid == -1? "NONE":PCB_LIST[MSG_LIST[i]->dest_pid]->name;
+				const char* pcb_name;
+				switch(MSG_LIST[i]->dest_pid)
+				{
+					case(-1):
+						pcb_name = "NONE\0";
+						break;
+					default:
+						pcb_name = PCB_LIST[MSG_LIST[i]->dest_pid]->name;
+				}
 				offset += sprintf(formatted_msg+offset, "%i\t\t%s\n", i+1, pcb_name);
 			}
 			cci_print(formatted_msg);
 		}
 		// One space and enter results in CCI: being printed again
-		else if(strncasecmp(command, "\s", offset) == 0)
+		else if(strncasecmp(command, " ", offset) == 0)
 		{
 		}
 		// If enter is directly pressed, display a different error
-		else if(strncasecmp(command, "", offset) == 0)
+		else if(strcmp(command, "") == 0)
 		{
 			cci_print("Enter a command!\n");
 		}
@@ -150,6 +154,8 @@ void cci_process()
 			sprintf(formatted_msg, "The command %s is not supported\n", command);
 			cci_print(formatted_msg);
 		}
+		//printf("releasing %p\n", cci_env);
+		//release_message_env(cci_env);
 	}
 }
 

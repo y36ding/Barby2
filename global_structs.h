@@ -24,7 +24,7 @@ typedef struct MsgEnv {
 
 typedef enum process_states {
     READY, EXECUTING, BLOCKED_ON_ENV_REQUEST, BLOCKED_ON_RCV, NEVER_BLK_RCV,
-    INTERRUPTED
+    INTERRUPTED, NO_STATE
 } ProcessState;
 
 typedef struct msg_env_queue {

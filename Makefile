@@ -16,9 +16,9 @@
 #	-g means add symbol table information for debugging purposes
 # LNFLAGS represents the linker command line parameters
 #
-CC = g++
+CC = gcc
 CFLAGS = -c -g -Wno-write-strings
-LINK = g++
+LINK = gcc
 LNFLAGS = -g -Wno-write-strings
 
 

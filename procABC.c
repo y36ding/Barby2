@@ -70,7 +70,7 @@ void procC()
 	MsgEnv *msg_env;
 	while(1)
 	{
-		while(MsgEnvQ_size(msgQueue) == 0)
+		while(MsgEnvQ_size(msgQueue) == 0 || MsgEnvQ_size(CURRENT_PROCESS->rcv_msg_queue)>0)
 		{
 			msg_env = (MsgEnv*)receive_message();
 			MsgEnvQ_enqueue(msgQueue, msg_env);
