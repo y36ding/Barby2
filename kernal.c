@@ -247,7 +247,7 @@ int k_terminate()
 
 int k_change_priority(int target_priority, int target_pid)
 {
-	if (target_priority > NUM_PRIORITIES-1 || target_priority < 0)
+	if (target_priority > NUM_PRIORITY_LEVEL-1 || target_priority < 0)
 			return ILLEGAL_ARGUMENT;
 
 	pcb* target_pcb = pid_to_pcb(target_pid);

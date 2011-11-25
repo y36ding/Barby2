@@ -157,7 +157,7 @@ void cci_process()
 		//release_message_env(cci_env);
 	}
 	fflush(stdout);
-	printf("WTH! CCI came out of while loop!");
+	printf("=====================WTH! CCI came out of while loop!");
 	fflush(stdout);
 	terminate();
 }

@@ -30,17 +30,12 @@ void cleanup();
 void die(int signal);
 
 // User Processes
-void processP();
-void test_process();
 void null_process();
 void procA();
 void procB();
 void procC();
 void clock_process();
 void cci_process();
-
-void displayClock(int);
-
 
 // Trace Buffers
 extern TraceBuffer SEND_TRACE_BUF;
