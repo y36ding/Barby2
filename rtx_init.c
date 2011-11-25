@@ -22,7 +22,6 @@ int init_all_lists() {
 		}
 		PCB_LIST[i]->pid = INIT_TABLE[i].pid;
 		PCB_LIST[i]->priority = INIT_TABLE[i].priority;
-		PCB_LIST[i]->state = READY;
 		PCB_LIST[i]->name = INIT_TABLE[i].name;
 		PCB_LIST[i]->rcv_msg_queue = (MsgEnvQ*) MsgEnvQ_create();
 		PCB_LIST[i]->is_i_process = INIT_TABLE[i].is_i_process;
@@ -30,6 +29,15 @@ int init_all_lists() {
 		PCB_LIST[i]->stack = (char*)malloc(STACK_SIZE);
 		PCB_LIST[i]->next = NULL;
 		PCB_LIST[i]->a_count = 0;
+		const char* pcb_name;
+		switch(PCB_LIST[i]->is_i_process)
+		{
+			case(1):
+				PCB_LIST[i]->state = NO_STATE;
+				break;
+			default:
+				PCB_LIST[i]->state = READY;
+		}
 
 		printf("Initialized pcb: %i, Name :%s, Pointer: %p, Rcv Queue:%p\n",i, PCB_LIST[i]->name, PCB_LIST[i], PCB_LIST[i]->rcv_msg_queue);
 		if (!(PCB_LIST[i]->is_i_process))

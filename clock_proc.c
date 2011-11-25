@@ -2,15 +2,13 @@
 #include "userAPI.h"
 #include "cci.h"
 
-
+int hour, min, sec;
 int clockDisplayRequest; //0 when not displaying, 1 when displaying
 MsgEnvQ *envQ;
-int hour, min, sec, clockTime;;
+MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
+int checkBit, clockTime;
 
 void clock_process() {
-
-	MsgEnv *generalEnv, *timeoutEnv, *displayEnv;
-	int checkBit;
 
 	envQ = MsgEnvQ_create();
 	clockDisplayRequest = 0;
